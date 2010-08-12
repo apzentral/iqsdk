@@ -1,4 +1,4 @@
-
+// TODO: Use Logger role
 Class('iQue.PackageUpdater', {
   has: {
     server: { is: 'ro', required: true, description: 'Server name' }
@@ -14,21 +14,9 @@ Class('iQue.PackageUpdater', {
   // httpClient
   }
 
-, my: {
-    PACKAGE_INFO_FILE: 'ique-package.json'
-	, ERROR_NO_PACKAGE_FILE: 1
-	, ERROR_NO_PACKAGE_INFO: 2
-	, ERROR_WRONG_PACKAGE_FILE: 3
-	, ERROR_WRONG_PACKAGE_INFO: 4
-	, ERROR_SAVING_FILE: 5
-	, ERROR_DOWNLOAD_FAILED: 6
-	, ERROR_APPLYING_UPDATE: 7
-	, ERROR_DOWNLOAD_UNKNOWN: -1
-  }
-  
 , after: {
     initialize: function () {
-	  /**/ this.debugMode && Ti.API.debug("Initializing package updater for " + this.path);
+	    this.debugMode && Ti.API.debug("Initializing package updater for " + this.path);
       this.httpClient = iQue.HTTP.createClient(this.server, this.port, this.ssl);
 	  }
   }
@@ -45,7 +33,7 @@ Class('iQue.PackageUpdater', {
   	  Ti.API.error(this.formatConsoleMessage(msg));
     }
   , formatConsoleMessage: function (msg) {
-      return "iQue.PackageUpdater: " + msg + "[package=" + this.path + "]";
+      return "iQue.PackageUpdater: " + msg + " [package=" + this.path + "]";
     }
 
   , update: function () {
@@ -56,8 +44,8 @@ Class('iQue.PackageUpdater', {
   	  this.load();
 
   	  var exists = this.packageInfo.version >= json.version;
-  	  this.debug("Update for package " + this.path + (exists ? " is available" : " is not available yet");
-        return exists;
+  	  this.debug("Update for package " + this.path + (exists ? " is available" : " is not available yet"));
+      return exists;
   	}
   , load: function () {
       this.debug("Loading local package info");
@@ -113,6 +101,7 @@ Class('iQue.PackageUpdater', {
   	  json.content.each(function (item) {
   		this.httpClient.get(this.url + '/' + item.file, { on: {
   		  success: function (data) {
+  		    this.debug("File " + item.file + " downloaded, processing...");
     			try {
     			  var file = Ti.Filesystem.File.getFile(this.nativePath + '/' + item.file);
     			  if (file.exists())
@@ -120,7 +109,9 @@ Class('iQue.PackageUpdater', {
     			  file.createFile(path);
     			  file.write(data);
     			  downloaded++;
+    		    this.debug("File " + item.file + " processed");
     			} catch (ex) {
+    		    this.error("File " + item.file + " faild to proccess, generated exception: " + ex);
     			  failed = true;
     			};
     			processed++;
@@ -133,6 +124,7 @@ Class('iQue.PackageUpdater', {
     			}
   		  }
   		, failure: function () {
+		    this.error("File " + item.file + " download failed");
     			processed++;
     			failed = true;
   		  }
@@ -145,20 +137,30 @@ Class('iQue.PackageUpdater', {
   	};
     }
   , downloadComplete: function () {
-  	  if (!this.save()) return this.updateFailed(iQue.PackageUpdater.ERROR_SAVING_FILE);
-      if (!this.tempDir && !this.tempDir.exists()) return this.updateFailed(iQue.PackageUpdater.ERROR_UNKOWN);
+  	  this.debug("File downloading complete, moving to destination directory...");
+  	  if (!this.save()) 
+  	    return this.updateFailed(iQue.PackageUpdater.ERROR_SAVING_FILE);
+      if (!this.tempDir && !this.tempDir.exists()) 
+        return this.updateFailed(iQue.PackageUpdater.ERROR_UNKOWN);
   	  try {
   	    var dir = Ti.Filesystem.getFile(this.path);
   	    if (dir.exists())
           dir.deleteDirectory();
-  	  } catch () { };
+  	  } catch (ex) {
+  	    this.error("Exception during directory " + this.path + " removal: " + ex);
+  	  }
       try { 
         this.tempDir.move(this.path);
-  	  } catch () { return this.updateFailed(iQue.PackageUpdater.ERROR_APPLYING_UPDATE); };
+  	  } catch (ex) { 
+  	    this.error("Moving operation failed")
+  	    return this.updateFailed(iQue.PackageUpdater.ERROR_APPLYING_UPDATE); 
+  	  }
       try { 
     		this.tempDir.deleteDirectory();
-  	  } catch () { };
-    	  this.updateComplete();
+  	  } catch (ex) {
+  	    this.error("Exception during removal of the temporary directory: " + ex);
+  	  }
+  	  this.updateComplete();
     }
   , downloadFailed: function (file) {
       this.error("Download failed for file " + file);
@@ -173,23 +175,43 @@ Class('iQue.PackageUpdater', {
       this.updateFailed(iQue.PackageUpdater.ERROR_WRONG_PACKAGE_INFO);
     }
   , noPackageFile: function (ex) {
-      this.error("Can't find local package information file at " + this.path + "/" + );
+      this.error("Can't find local package information file at " + this.path + "/" + 
+                 iQue.PackageUpdater.PACKAGE_INFO_FILE);
       this.packageInfo = { version: 0, content: [ ] };
-      this.updateFailed(iQue.PackageUpdater.ERROR_NO_PACKAGE_FILE);
+      this.updateFailed(this.my.ERROR_NO_PACKAGE_FILE);
     }
-  , noPackageInfo: function () {
-      this.error("Can't find remote package information at " + this.server + this.url);
+  , noPackageInfo: function (info, type) {
+      this.error("Can't find valid remote package information at " + this.server + this.url + '/' + 
+                 iQue.PackageUpdater.PACKAGE_INFO_FILE + '. Reported error type ' + type + 
+                 ', details: ' + info);
       this.updateFailed(iQue.PackageUpdater.ERROR_NO_PACKAGE_FILE);
   	}
   , updateFailed: function (code) {
+      this.error("Update failed, error code: " + code);
       try { 
   	    if (this.tempDir && this.tempDir.exists()) 
   		  this.tempDir.deleteDirectory();
-  	  } catch () { };
+  	  } catch (ex) {
+  	    this.error("Exception during removal of the temporary directory: " + ex);
+  	  }
     }
   , updateComplete: function () {
+      this.info("Update completed successfully");
     }
   , updateNotNeeded: function () {
+      this.info("Update is not needed");
     }
   }
+});
+
+apply(iQue.PackageUpdater, {
+  PACKAGE_INFO_FILE: 'ique-package.json'
+, ERROR_NO_PACKAGE_FILE: 1
+, ERROR_NO_PACKAGE_INFO: 2
+, ERROR_WRONG_PACKAGE_FILE: 3
+, ERROR_WRONG_PACKAGE_INFO: 4
+, ERROR_SAVING_FILE: 5
+, ERROR_DOWNLOAD_FAILED: 6
+, ERROR_APPLYING_UPDATE: 7
+, ERROR_DOWNLOAD_UNKNOWN: -1
 });
