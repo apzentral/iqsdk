@@ -54,6 +54,7 @@ Class('iQue.UI.Control', {
       this.initStrings();
       conf = conf || { };
       conf.config = conf.config || { };
+      conf.config = this.initConfig(conf.config);
       this.__i18nStrings.each(function (param) {
         if (conf.config[param])
           conf.config[param] = iQue.i18n(conf.config[param]);
@@ -67,6 +68,9 @@ Class('iQue.UI.Control', {
   , initStrings: function () {
       this.__i18nStrings = [ ];
       this.__themeStrings = [ 'backgroundImage' ];
+    }
+  , initConfig: function (config) {
+      return config;
     }
   , construct: function () {
       this.debug("Constructing component...");
