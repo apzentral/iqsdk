@@ -70,7 +70,13 @@ Class('iQue.UI.Control', {
     }
   , construct: function () {
       this.debug("Constructing component...");
-      var cfg = this.origConfig.config;
+      var cfg = apply({ }, this.origConfig.config);
+
+      var dynamic = this.origConfig.dynamic;
+      isArray(dynamic) && dynamic.each (function (dytem) {
+        cfg[dytem.attribute] = dytem.generator();
+      }, this);
+
       var constructor = Ti.UI['create' + this.tiClass];
       if (!isFunction(constructor)) {
         this.error("Unknown Titanium control constructor: " + this.tiClass);
@@ -79,6 +85,12 @@ Class('iQue.UI.Control', {
       switch (this.tiClass) {
         case 'Button':
           this.tiCtrl = Ti.UI.createButton(cfg);
+          break;
+        case 'Label':
+          this.tiCtrl = Ti.UI.createLabel(cfg);
+          break;
+        case 'ImageView':
+          this.tiCtrl = Ti.UI.createImageView(cfg);
           break;
         case 'View':
           this.tiCtrl = Ti.UI.createView(cfg);

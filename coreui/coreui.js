@@ -1,6 +1,6 @@
 
 include('lib/ique/coreui/Control.js');
-include('lib/ique/coreui/Button.js');
+include('lib/ique/coreui/BasicControls.js');
 
 include('lib/ique/coreui/View.js');
 include('lib/ique/coreui/Window.js');
