@@ -9,7 +9,7 @@ Class('iQue.UI.TableView', {
 
 , after: {
     render: function () {
-      this.renderRows();
+      this.renderItems();
       return true;
     }
   }
@@ -19,8 +19,8 @@ Class('iQue.UI.TableView', {
       this.data = this.data || [ ];
       return this.data;
     }
-  
-  , renderRows: function () {
+
+  , renderItems: function () {
       this.getData().each(function (item) {
         var className = item.className || 'default';
         var rowConfig = this.origConfig.rowClasses[className];
@@ -39,6 +39,30 @@ Class('iQue.UI.TableView', {
     
   , appendRow: function (row) {
       return this.tiCtrl.appendRow(row.tiCtrl || row);
+    }
+  }
+});
+
+Class('iQue.UI.GroupedView', {
+  isa: iQue.UI.TableView
+
+, has: {
+  }
+
+, augment: {
+    initConfig: function (config) {
+      config.style = Ti.UI.iPhone.TableViewStyle.GROUPED;
+      return config;
+    }
+  }
+
+, override: {
+    renderItems: function () {
+    }
+  }
+
+, methods: {
+    renderSection: function () {
     }
   }
 });
