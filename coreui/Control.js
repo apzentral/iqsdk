@@ -3,6 +3,7 @@ Class('iQue.UI.Control', {
     controls: { is: 'ro', required: false, init: { } }
   , origConfig: { is: 'ro', required: false, init: { } }
   , origParams: { is: 'ro', required: false, init: { } }
+  , eventListeners: { is: 'ro', required: false, init: { } }
   , tiCtrl: { is: 'ro', required: false, init: null }
   , tiClass: { is: 'ro', required: false }
   , i18nStrings: { is: 'ro', required: false, init: [ ], isPrivate: true }
@@ -25,6 +26,17 @@ Class('iQue.UI.Control', {
       }
 
       try {
+        if (!this.render()) {
+          this.error("Control rendering faield");
+          return false;
+        }
+      } catch (ex) {
+        this.error("Exception during control construction:");
+        this.error(ex);
+        return false;
+      }
+
+      try {
         if (!this.listen()) {
           this.error("Control event binging faield");
           return false;
@@ -35,16 +47,6 @@ Class('iQue.UI.Control', {
         return false;
       }
 
-      try {
-        if (!this.render()) {
-          this.error("Control rendering faield");
-          return false;
-        }
-      } catch (ex) {
-        this.error("Exception during control construction:");
-        this.error(ex);
-        return false;
-      }
       return true;
     }
   }
@@ -142,10 +144,7 @@ Class('iQue.UI.Control', {
           this.error("Bad listener " + fn + " for " + event + " event");
           continue;
         }
-        var me = this;
-        this.on(event, function() {
-          fn.apply(me, arguments);
-        });
+        this.on(event, fn);
       }
       return true;
     }
@@ -171,13 +170,17 @@ Class('iQue.UI.Control', {
   , hide: function () { this.tiCtrl.hide(); return this; }
   , animate: function (anim, cb) { this.tiCtrl.animate(anim, cb); return this; }
   
-  , on: function (eventName, cb) { 
-      this.tiCtrl.addEventListener(eventName, cb);
-	  return this;
+  , on: function (eventName, cb, scope) {
+      var fn = cb.bind(scope || this);
+      this.eventListeners[eventName] = this.eventListeners[eventName] || { };
+      this.eventListeners[cb] = fn;
+      this.tiCtrl.addEventListener(eventName, fn);
+  	  return this;
     }
   , un: function (eventName, cb) {
-      this.tiCtrl.reomveEventListener(eventName, cb);
-	  return this;
+      var fn = this.eventListeners[eventName] && this.eventListeners[eventName][cb];
+      this.tiCtrl.reomveEventListener(eventName, fn || cb);
+  	  return this;
     }
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
   }
