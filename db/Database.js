@@ -57,8 +57,7 @@ Class('iQue.DB.Database', {
   , reset: function () {
       this.debug("Clearing (resetting) database " + this.name);
       try {
-        Ti.Database.open(this.name).remove;
-        Ti.Database.open(this.name + '.db').remove;
+        Ti.Database.open(this.name).remove();
       } catch (ex) {
         this.debug("Database was not installed");
       }

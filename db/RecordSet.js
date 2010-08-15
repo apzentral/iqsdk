@@ -27,6 +27,9 @@ Class('iQue.DB.RecordSet', {
   , collect: function (iterator) {
       return this.getResults().collect(iterator);
     }
+  , first: function (iterator) {
+      return this.getResults().first(iterator);
+    }
   , getResults: function () {
       if (this.results) return this.results;
       this.results = [ ];

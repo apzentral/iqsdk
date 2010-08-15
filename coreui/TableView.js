@@ -162,7 +162,7 @@ Class('iQue.UI.TableView.Row', {
   , mapping: { is: 'ro', required: true, init: { } }
   , layout: { is: 'ro', required: true, init: null }
   }
-  
+
 , override: {
     BUILD: function (data, config, rowClass) {
       this.layout = config.layout;
