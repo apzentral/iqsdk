@@ -170,6 +170,7 @@ Class('iQue.UI.TableView.Row', {
       this.data = data;
       var o = this.SUPER(config);
       o.origConfig.config.rowClass = rowClass;
+      o.origConfig.config.iQueData = data;
       return apply(o, {
         data: data
       , rowClass: rowClass

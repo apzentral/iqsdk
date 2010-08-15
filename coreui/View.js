@@ -40,3 +40,11 @@ Class('iQue.UI.View', {
     }
   }
 });
+
+Class('iQue.UI.ScrollView', {
+  isa: iQue.UI.View
+  
+, has: {
+    tiClass: { is: 'ro', required: false, init: 'ScrollView' }
+  }
+});

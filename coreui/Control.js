@@ -55,13 +55,18 @@ Class('iQue.UI.Control', {
       conf = conf || { };
       conf.config = conf.config || { };
       conf.config = this.initConfig(conf.config);
+      function _process(itm, fn) {
+        if (isArray(itm))
+          return itm.collect(function (i) { return _process(i, fn); });
+        else if (itm)
+          return fn(itm);
+        return itm;
+      };
       this.__i18nStrings.each(function (param) {
-        if (conf.config[param])
-          conf.config[param] = iQue.i18n(conf.config[param]);
+        conf.config[param] = _process(conf.config[param], iQue.i18n);
       });
       this.__themeStrings.each(function (param) {
-        if (conf.config[param])
-          conf.config[param] = iQue.theme(conf.config[param]);
+        conf.config[param] = _process(conf.config[param], iQue.theme);
       });
       return { origConfig: conf, origParams: params || { } };
     }
@@ -90,6 +95,9 @@ Class('iQue.UI.Control', {
         case 'Button':
           this.tiCtrl = Ti.UI.createButton(cfg);
           break;
+        case 'ButtonBar':
+          this.tiCtrl = Ti.UI.createButtonBar(cfg);
+          break;
         case 'Label':
           this.tiCtrl = Ti.UI.createLabel(cfg);
           break;
@@ -98,6 +106,9 @@ Class('iQue.UI.Control', {
           break;
         case 'View':
           this.tiCtrl = Ti.UI.createView(cfg);
+          break;
+        case 'ScrollView':
+          this.tiCtrl = Ti.UI.createScrollView(cfg);
           break;
         case 'Window':
           this.tiCtrl = Ti.UI.createWindow(cfg);

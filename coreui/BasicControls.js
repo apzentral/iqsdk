@@ -5,6 +5,12 @@ Class('iQue.UI.Label', {
 , have: {
     tiClass: 'Label'
   }
+
+, methods: {
+    setText: function (text) {
+      return this.tiCtrl.setText(text);
+    }
+  }
 });
 
 
@@ -14,10 +20,16 @@ Class('iQue.UI.ImageView', {
 , have: {
     tiClass: 'ImageView'
   }
-  
+
 , after: {
     initStrings: function () {
       this.__themeStrings.push('image');
+    }
+  }
+
+, methods: {
+    setImage: function (url) {
+      return this.tiCtrl.setImage(url);
     }
   }
 });
@@ -28,5 +40,19 @@ Class('iQue.UI.Button', {
 
 , have: {
     tiClass: 'Button'
+  }
+});
+
+Class('iQue.UI.ButtonBar', {
+  isa: iQue.UI.Control
+
+, have: {
+    tiClass: 'ButtonBar'
+  }
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('labels');
+    }
   }
 });
