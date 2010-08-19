@@ -1,6 +1,7 @@
 Class('iQue.UI.Control', {
   has: {
-    controls: { is: 'ro', required: false, init: { } }
+    parent: { is: 'ro', required: false, init: { } }
+  , controls: { is: 'ro', required: false, init: { } }
   , origConfig: { is: 'ro', required: false, init: { } }
   , origParams: { is: 'ro', required: false, init: { } }
   , eventListeners: { is: 'ro', required: false, init: { } }
@@ -57,6 +58,7 @@ Class('iQue.UI.Control', {
       conf = conf || { };
       conf.config = conf.config || { };
       conf.config = this.initConfig(conf.config);
+      this.parent = conf.parent;
       function _process(itm, fn) {
         if (isArray(itm))
           return itm.collect(function (i) { return _process(i, fn); });
@@ -85,7 +87,12 @@ Class('iQue.UI.Control', {
 
       var dynamic = this.origConfig.dynamic;
       isArray(dynamic) && dynamic.each (function (dytem) {
-        cfg[dytem.attribute] = dytem.generator();
+        var generator = dytem.generator;
+        if (!isFunction(generator)) generator = this[generator];
+        if (!isFunction(generator))
+          this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
+        else
+          cfg[dytem.attribute] = generator();
       }, this);
 
       var constructor = Ti.UI['create' + this.tiClass];
@@ -139,7 +146,7 @@ Class('iQue.UI.Control', {
       for (var event in listeners) {
         var fn = listeners[event];
         if (!isFunction(fn))
-          fn = this[fn];
+          fn = this.iquePath(fn);
         if (!isFunction(fn)) {
           this.error("Bad listener " + fn + " for " + event + " event");
           continue;
@@ -157,7 +164,7 @@ Class('iQue.UI.Control', {
         if (!isFunction(constructor))
           return this.error("Component " + item.name + " does not supply proper constructor");
         try {
-          var ctrl = this.controls[item.name] = new constructor(item);
+          var ctrl = this.controls[item.name] = new constructor(apply({ parent: this }, item));
           this.tiCtrl[item.location] = ctrl.tiCtrl || ctrl;
         } catch (ex) {
           this.error("Exception during component build process:");
@@ -169,7 +176,7 @@ Class('iQue.UI.Control', {
   , show: function () { this.tiCtrl.show(); return this; }
   , hide: function () { this.tiCtrl.hide(); return this; }
   , animate: function (anim, cb) { this.tiCtrl.animate(anim, cb); return this; }
-  
+
   , on: function (eventName, cb, scope) {
       var fn = cb.bind(scope || this);
       this.eventListeners[eventName] = this.eventListeners[eventName] || { };
@@ -183,5 +190,36 @@ Class('iQue.UI.Control', {
   	  return this;
     }
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
+  
+  , iquePath: function (route) {
+      try {
+        this.debug("Processing iQue path expression " + route);
+        var obj = this;
+        route.split('.').each(function (item) {
+          var type = '<non-iQue component>';
+          try { type = obj.meta.name; } catch (ex) { ; };
+          this.debug("Parsing path component: " + item + " for " + type);
+          if (isFunction(obj.iqueAxis)) obj = obj.iqueAxis(item);
+          item = item.replace(/^[^\w\d]/, '');
+          if (item.length == '') return;
+          if (!obj[item]) {
+            this.error("Error processing iQue path expression: undefined component " + item);
+            throw "Unknown iQue path component " + item;
+          }
+          obj = obj[item];
+        }, this);
+        return obj;
+      } catch (ex) {
+        this.error("Wrong iQue path expression: " + route);
+        this.error("Exception details: " + ex);
+        return this;
+      }
+    }
+    
+  , iqueAxis: function (item) {
+      if (item == '^') return this.parent;
+      if (item.startsWith('*')) return this.controls;
+      return this;
+    }
   }
 });

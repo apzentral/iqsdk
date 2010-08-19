@@ -16,13 +16,20 @@ Class('iQue.UI.View', {
         if (!isFunction(constructor))
           return this.error("Component " + item.name + " does not supply proper constructor");
         try {
-          this.add(this.components[item.name] = new constructor(item, this.origParams));
+          this.add(this.components[item.name] = new constructor(apply({ parent: this }, item), this.origParams));
         } catch (ex) {
           this.error("Exception during component build process:");
           this.error(ex);
         }
       }, this);
       return true;
+    }
+  }
+
+, override: {
+    iqueAxis: function (item) {
+      if (item.startsWith('@')) return this.components;
+      else return this.SUPER(item);
     }
   }
 

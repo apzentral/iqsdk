@@ -27,7 +27,8 @@ Class('iQue.UI.TableView', {
       var className = item.className || 'default';
       var rowConfig = this.origConfig.rowClasses[className];
       this.debug("Rendering row of class " + className);
-      var row = new iQue.UI.TableView.Row(item, rowConfig, className);
+      var row = new iQue.UI.TableView.Row(item, apply({ parent: this }, rowConfig), className);
+      row.parent = this;
       this.appendRow(row);
     }
     
@@ -67,6 +68,10 @@ Class('iQue.UI.GroupedView', {
       config.style = Ti.UI.iPhone.TableViewStyle.GROUPED;
       return config;
     }
+  , iqueAxis: function (item) {
+      if (item.startsWith('%')) return this.sections;
+      else return this.SUPER(item);
+    }
   }
 
 , methods: {
@@ -79,7 +84,7 @@ Class('iQue.UI.GroupedView', {
       var sectionConfig = this.origConfig.sectionClasses[className];
       var section;
       this.debug("Rendering section " + item.name + " of class " + className);
-      section = new iQue.UI.TableView.Section(item, sectionConfig, className);
+      section = new iQue.UI.TableView.Section(item, apply({ parent: this }, sectionConfig), className);
       this.sections[item.name] = section;
       // this.appendSection(section);
       return section;
@@ -106,6 +111,7 @@ Class('iQue.UI.TableView.Section', {
       this.layout = config.layout;
       this.mapping = config.mapping;
       this.data = data;
+      this.parent = config.parent;
       var o = this.SUPER(config);
       o.origConfig.config.sectionClass = sectionClass;
       return apply(o, {
@@ -135,7 +141,8 @@ Class('iQue.UI.TableView.Section', {
       var layout = this.layout;
       var mapping = this.mapping;
       layout && layout.each(function (item) {
-        var param = { };
+        var param = { }, row;
+        param.parent = this;
         param[mapping[item.name].attribute] = 
           (this.data[mapping[item.name].field] ||
            iQue.i18n(mapping[item.name]['default']));
@@ -168,6 +175,7 @@ Class('iQue.UI.TableView.Row', {
       this.layout = config.layout;
       this.mapping = config.mapping;
       this.data = data;
+      this.parent = config.parent;
       var o = this.SUPER(config);
       o.origConfig.config.rowClass = rowClass;
       o.origConfig.config.iQueData = data;
@@ -180,9 +188,10 @@ Class('iQue.UI.TableView.Row', {
     }
   , initConfig: function (config) {
       if (this.layout) return config;
-      return apply(config, {
-        title: this.data[this.mapping.title.field]
-      });
+      config.title = this.data[this.mapping.title.field];
+      if (this.mapping.leftImage) config.leftImage = this.data[this.mapping.leftImage.field];
+      if (this.mapping.rightImage) config.rightImage = this.data[this.mapping.rightImage.field];
+      return config;
     }
   }  
 
