@@ -144,14 +144,18 @@ Class('iQue.UI.Control', {
       this.debug("Attaching event listeners...");
       var listeners = this.origConfig.listeners = this.origConfig.listeners || { };
       for (var event in listeners) {
-        var fn = listeners[event];
+        var li = listeners[event];
+        var fn = li.handler || li;
+        var scope = li.scope || this;
         if (!isFunction(fn))
           fn = this.iquePath(fn);
+        if (isString(scope))
+          scope = this.iquePath(scope);
         if (!isFunction(fn)) {
           this.error("Bad listener " + fn + " for " + event + " event");
           continue;
         }
-        this.on(event, fn);
+        this.on(event, fn, scope);
       }
       return true;
     }
