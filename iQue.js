@@ -17,6 +17,20 @@ iQue = {
     }
     return new constructor(item, params);
   }
+  
+, openWebSite: function (url) {
+    Ti.Platform.openURL(url);
+  }
+, openAppStore: function (url) {
+    if (Ti.Platform.model == 'Simulator') {
+      alert('Opening iTunes for: ' + url);
+    } else {
+      Ti.Platform.openURL(url);
+    }
+  }
+, openYouTube: function (ytid) {
+    Ti.Platform.openURL('http://youtube.com/watch?v=' + ytid);
+  }
 };
 
 include('lib/ique/roles/Analytics.js');
