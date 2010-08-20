@@ -59,19 +59,12 @@ Class('iQue.UI.Control', {
       conf.config = conf.config || { };
       conf.config = this.initConfig(conf.config);
       this.parent = conf.parent;
-      function _process(itm, fn) {
-        if (isArray(itm))
-          return itm.collect(function (i) { return _process(i, fn); });
-        else if (itm)
-          return fn(itm);
-        return itm;
-      };
       this.__i18nStrings.each(function (param) {
-        conf.config[param] = _process(conf.config[param], iQue.i18n);
-      });
+        conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.i18n);
+      }, this);
       this.__themeStrings.each(function (param) {
-        conf.config[param] = _process(conf.config[param], iQue.theme);
-      });
+        conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.theme);
+      }, this);
       return { origConfig: conf, origParams: params || { } };
     }
   , initStrings: function () {
@@ -81,18 +74,39 @@ Class('iQue.UI.Control', {
   , initConfig: function (config) {
       return config;
     }
+  , preprocessAttribute: function (attr, value) {
+      if (this.__i18nStrings.include(attr))
+        return this.batchProcessAttribute(value, iQue.i18n);
+      if (this.__themeStrings.include(attr))
+        return this.batchProcessAttribute(value, iQue.theme);
+      return value;
+    }
+  , batchProcessAttribute: function (itm, fn) {
+      if (isArray(itm))
+        return itm.collect(function (i) { return this.batchProcessAttribute(i, fn); }, this);
+      else if (itm)
+        return fn(itm);
+      return itm;
+    }
   , construct: function () {
       this.debug("Constructing component...");
       var cfg = apply({ }, this.origConfig.config);
 
       var dynamic = this.origConfig.dynamic;
       isArray(dynamic) && dynamic.each (function (dytem) {
-        var generator = dytem.generator;
-        if (!isFunction(generator)) generator = this[generator];
-        if (!isFunction(generator))
-          this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
-        else
-          cfg[dytem.attribute] = generator();
+        try {
+          var generator = dytem.generator;
+          var scope = dytem.scope;
+          if (isString(scope)) scope = this.iquePath(scope);
+          if (!isFunction(generator)) generator = this.iquePath(generator);
+          if (!isFunction(generator))
+            this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
+          else
+            cfg[dytem.attribute] = this.preprocessAttribute(dytem.attribute, generator.call(scope || this, this));
+        } catch (ex) {
+          this.error("Error generating dynamic attribute " + dytem.attribute);
+          this.logException(ex);
+        }
       }, this);
 
       var constructor = Ti.UI['create' + this.tiClass];
