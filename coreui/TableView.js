@@ -160,25 +160,22 @@ Class('iQue.UI.TableView.Section', {
 });
 
 Class('iQue.UI.TableView.Row', {
-  isa: iQue.UI.View
+  isa: iQue.UI.TableView.Section
 
 , has: {
     tiClass: { is: 'ro', required: false, init: 'TableViewRow' }
   , rowClass: { is: 'ro', required: true, init: 'default' }
-  , data: { is: 'ro', required: true, init: { } }
-  , mapping: { is: 'ro', required: true, init: { } }
-  , layout: { is: 'ro', required: true, init: null }
   }
+  
+, hasnt: [ 'sectionClass' ]
 
 , override: {
     BUILD: function (data, config, rowClass) {
-      this.layout = config.layout;
-      this.mapping = config.mapping;
-      this.data = data;
-      this.parent = config.parent;
-      var o = this.SUPER(config);
-      o.origConfig.config.rowClass = rowClass;
-      o.origConfig.config.iQueData = data;
+      var o = this.SUPER(data, config, rowClass);
+      apply(o.origConfig.config, {
+        rowClass: rowClass
+      , iQueData: data
+      });
       return apply(o, {
         data: data
       , rowClass: rowClass
@@ -194,19 +191,4 @@ Class('iQue.UI.TableView.Row', {
       return config;
     }
   }  
-
-, after: {
-    render: function () {
-      var layout = this.layout;
-      var mapping = this.mapping;
-      layout && layout.each(function (item) {
-        var param = { };
-        param[mapping[item.name].attribute] = 
-          (this.data[mapping[item.name].field] ||
-           iQue.i18n(mapping[item.name]['default']));
-        this.add(item.builder(apply(param, item.config)));
-      }, this);
-      return true;
-    }
-  }
 });
