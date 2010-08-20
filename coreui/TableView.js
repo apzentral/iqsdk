@@ -144,7 +144,8 @@ Class('iQue.UI.TableView.Section', {
         var param = { };
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
-          param[mi.attribute] = (this.data[mi.field] || iQue.i18n(mi['default']));
+          var val = this.data[mi.field];
+          param[mi.attribute] = (val === undefined ? iQue.i18n(mi['default']) : val);
         }, this);
         this.add(item.builder(apply(param, item.config)));
       }, this);
