@@ -8,6 +8,10 @@ Role('iQue.R.Logging', {
   , log: function (msg) {
       this.debug(msg);
     }
+  , logException: function (ex) {
+      Ti.Analytics.userEvent('exception', { component: this.meta.name, exception: ex });
+      Ti.API.error(ex);
+    }
 
   , error: function (msg) {
       Ti.API.error(this.formatLogMessage(msg));
