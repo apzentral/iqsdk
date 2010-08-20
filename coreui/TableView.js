@@ -141,11 +141,11 @@ Class('iQue.UI.TableView.Section', {
       var layout = this.layout;
       var mapping = this.mapping;
       layout && layout.each(function (item) {
-        var param = { }, row;
-        param.parent = this;
-        param[mapping[item.name].attribute] = 
-          (this.data[mapping[item.name].field] ||
-           iQue.i18n(mapping[item.name]['default']));
+        var param = { };
+        var map = mapping[item.name];
+        map && [ map ].flatten().each(function (mi) {
+          param[mi.attribute] = (this.data[mi.field] || iQue.i18n(mi['default']));
+        }, this);
         this.add(item.builder(apply(param, item.config)));
       }, this);
       return true;
