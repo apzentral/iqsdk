@@ -18,6 +18,9 @@ iQue = {
     return new constructor(item, params);
   }
   
+, callPhone: function (number) {
+    Ti.Platform.openURL('tel://' + number.replace(/[^\d\+]+/g, ''));
+  }
 , openWebSite: function (url) {
     Ti.Platform.openURL(url);
   }
