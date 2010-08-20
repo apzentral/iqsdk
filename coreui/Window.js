@@ -7,7 +7,7 @@ Class('iQue.UI.Window', {
 
 , after: {
     initStrings: function () {
-      this.__i18nStrings.push('title', 'titlePrompt', 'backButtonRitle');
+      this.__i18nStrings.push('title', 'titlePrompt', 'backButtonTitle');
       this.__themeStrings.push('barImage', 'titleImage', 'backButtonTitleImage');
     }
   }

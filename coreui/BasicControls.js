@@ -5,6 +5,12 @@ Class('iQue.UI.Label', {
 , have: {
     tiClass: 'Label'
   }
+  
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('text');
+    }
+  }
 
 , methods: {
     setText: function (text) {
