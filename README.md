@@ -8,7 +8,7 @@ _Author_: Maxim A. Orlovsky
 LICENSE:
 --------------------
 For non-commercial use the framework can be modified and re-distributed under open source GNU GPL license v3.
-For commercial use, either in a proprietary software or in an open source software accompanied by commercial services (support, training etc) please contact us at sales@dev-ique.com
+For commercial use, either in a proprietary software or in an open source projects accompanied by commercial services (support, training etc) please contact us at sales@dev-ique.com
 
 
 <small>* Appcelerator is a registered trademark of Appcelerator, Inc.  Appcelerator Titanium is 
