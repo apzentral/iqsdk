@@ -72,7 +72,8 @@ Class('iQue.HTTP.Client.Titanium', {
 
 , augment: {
     request: function (method, url, opts) {
-      var req = new this.engine();
+      opts = opts || { };
+      var req = this.engine();
       req.onload = function () {
         var data = this.responseText;
         if (opts.responseFormat == 'xml')
