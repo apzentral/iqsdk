@@ -35,5 +35,8 @@ Class('iQue.UI.TabGroup', {
   , getActiveTab: function () {
       return this.tiCtrl.activeTab;
     }
+  , setActiveTab: function (idx) {
+      return this.tiCtrl.setActiveTab(idx);
+    }
   }
 });
