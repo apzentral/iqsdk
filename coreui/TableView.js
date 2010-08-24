@@ -21,6 +21,13 @@ Class('iQue.UI.TableView', {
     }
   }
 
+, override: {
+    iqueAxis: function (item) {
+      if (item.startsWith('$')) return this.rows;
+      else return this.SUPER(item);
+    }
+  }
+
 , methods: {
     getData: function () {
       this.data = this.data || [ ];
@@ -156,7 +163,7 @@ Class('iQue.UI.TableView.Section', {
           var val = this.data[mi.field];
           param[mi.attribute] = (val === undefined ? iQue.i18n(mi['default']) : val);
         }, this);
-        this.add(item.builder(apply(param, item.config)));
+        this.add(this.components[item.name] = item.builder(apply(param, item.config)));
       }, this);
       return true;
     }
