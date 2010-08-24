@@ -1,14 +1,14 @@
 Class('iQue.UI.Control', {
   has: {
-    parent: { is: 'ro', required: false, init: { } }
-  , controls: { is: 'ro', required: false, init: { } }
+    parent: { is: 'ro', required: false, init: null }
+  , controls: { is: 'ro', required: false, init: null }
   , origConfig: { is: 'ro', required: false, init: { } }
   , origParams: { is: 'ro', required: false, init: { } }
   , eventListeners: { is: 'ro', required: false, init: { } }
   , tiCtrl: { is: 'ro', required: false, init: null }
   , tiClass: { is: 'ro', required: false }
-  , i18nStrings: { is: 'ro', required: false, init: [ ], isPrivate: true }
-  , themeStrings: { is: 'ro', required: false, init: [ ], isPrivate: true }
+  , i18nStrings: { is: 'ro', required: false, init: null, isPrivate: true }
+  , themeStrings: { is: 'ro', required: false, init: null, isPrivate: true }
   }
   
 , does: iQue.R.Logging
@@ -90,6 +90,8 @@ Class('iQue.UI.Control', {
     }
   , construct: function () {
       this.debug("Constructing component...");
+      this.controls = { };
+
       var cfg = apply({ }, this.origConfig.config);
 
       var dynamic = this.origConfig.dynamic;

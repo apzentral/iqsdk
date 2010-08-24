@@ -3,12 +3,13 @@ Class('iQue.UI.View', {
   
 , has: {
     tiClass: { is: 'ro', required: false, init: 'View' }
-  , components: { is: 'ro', required: false, init: { } }
+  , components: { is: 'ro', required: false, init: null }
   }
 
 , after: {
     construct: function () {
       this.debug("Building components...");
+      this.components = { };
       this.origConfig.components = this.origConfig.components || [ ];
       this.origConfig.components.each(function (item) {
         this.debug("Building " + item.name);

@@ -3,8 +3,15 @@ Class('iQue.UI.TableView', {
   
 , has: {
     tiClass: { is: 'ro', required: false, init: 'TableView' }
+  , rows: { is: 'ro', required: false, init: null }
   , data: { is: 'ro', required: false, init: [ ] }
   , layouts: { is: 'ro', required: false, init: { } }
+  }
+
+, before: {
+    construct: function () {
+      this.rows = { };
+    }
   }
 
 , after: {
@@ -29,9 +36,10 @@ Class('iQue.UI.TableView', {
       this.debug("Rendering row of class " + className);
       var row = new iQue.UI.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
+      this.rows[item.name] = row;
       this.appendRow(row);
     }
-    
+
   , appendRow: function (row) {
       return this.tiCtrl.appendRow(row.tiCtrl || row);
     }
@@ -42,11 +50,12 @@ Class('iQue.UI.GroupedView', {
   isa: iQue.UI.TableView
 
 , has: {
-    sections: { is: 'ro', required: false, init: { } }
+    sections: { is: 'ro', required: false, init: null }
   }
 
 , before: {
     construct: function () {
+      this.sections = { };
       this.origConfig.dynamic = this.origConfig.dynamic || [ ];
       this.origConfig.dynamic.push({
         attribute: 'data'
