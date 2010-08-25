@@ -117,6 +117,9 @@ Class('iQue.UI.Control', {
         this.error("Unknown Titanium control constructor: " + this.tiClass);
         return false;
       }
+      // This complicated switch is required because of quite odd bug
+      // in Titanium (Kroll actially) which fails to execute functions referenced
+      // in form of Ti.UI['create' + this.tiClass](cfg);
       switch (this.tiClass) {
         case 'Button':
           this.tiCtrl = Ti.UI.createButton(cfg);
