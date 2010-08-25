@@ -39,6 +39,7 @@ iQue = {
 include('lib/ique/roles/Analytics.js');
 include('lib/ique/roles/Logging.js');
 
+include('lib/ique/controller/Application.js');
 include('lib/ique/coreui/coreui.js');
 include('lib/ique/db/db.js');
 include('lib/ique/net/HTTP.js');
