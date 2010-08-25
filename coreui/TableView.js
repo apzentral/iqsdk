@@ -161,7 +161,13 @@ Class('iQue.UI.TableView.Section', {
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
           var val = this.data[mi.field];
-          param[mi.attribute] = (val === undefined ? iQue.i18n(mi['default']) : val);
+          if (val === undefined)
+            val = iQue.i18n(mi['default']);
+          if (isString(mi.format))
+            val = mi.format.format(val);
+          else if (isFunction(mi.format))
+            val = mi.format(val);
+          param[mi.attribute] = val;
         }, this);
         this.add(this.components[item.name] = item.builder(apply(param, item.config)));
       }, this);
