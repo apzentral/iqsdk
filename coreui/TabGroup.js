@@ -3,16 +3,19 @@ Class('iQue.UI.TabGroup', {
   
 , has: {
     tiClass: { is: 'ro', required: false, init: 'TabGroup' }
-  , tabs: { is: 'ro', required: false, init: { } }
-  , windows: { is: 'ro', required: false, init: { } }
-  , tabsConfig: { is: 'ro', required: true }
+  , tabs: { is: 'ro', required: false, init: null }
+  , windows: { is: 'ro', required: false, init: null }
   }
 
 , after: {
     render: function () {
-      this.tabsConfig.each(function (cfg) {
+      this.debug("Rendering tabs...");
+      this.tabs = { };
+      this.windows = { };
+      this.origConfig.tabs.each(function (cfg) {
         var win = new cfg.window.builder(cfg.window);
         var tab = Ti.UI.createTab({
+          name: cfg.name,
           icon: iQue.theme(cfg.icon),
           title: iQue.i18n(cfg.title),
           window: win.getTiCtrl()
@@ -26,11 +29,11 @@ Class('iQue.UI.TabGroup', {
   }
 
 , methods: {
-    BUILD: function (tabs) {
-      return apply({ tabsConfig: tabs }, this.SUPER());
-    }
-  , open: function () {
+    open: function () {
       this.tiCtrl.open();
+    }
+  , getActiveWindow: function () {
+      return this.windows[this.getActiveTab().name];
     }
   , getActiveTab: function () {
       return this.tiCtrl.activeTab;
