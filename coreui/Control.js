@@ -60,10 +60,12 @@ Class('iQue.UI.Control', {
       conf.config = this.initConfig(conf.config);
       this.parent = conf.parent;
       this.__i18nStrings.each(function (param) {
-        conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.i18n);
+        if (isDefined(conf.config[param]))
+          conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.i18n);
       }, this);
       this.__themeStrings.each(function (param) {
-        conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.theme);
+        if (isDefined(conf.config[param]))
+          conf.config[param] = this.batchProcessAttribute(conf.config[param], iQue.theme);
       }, this);
       return { origConfig: conf, origParams: params || { } };
     }
