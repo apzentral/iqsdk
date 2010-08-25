@@ -127,6 +127,9 @@ Class('iQue.UI.Control', {
         case 'Label':
           this.tiCtrl = Ti.UI.createLabel(cfg);
           break;
+        case 'TextField':
+          this.tiCtrl = Ti.UI.createTextField(cfg);
+          break;
         case 'ImageView':
           this.tiCtrl = Ti.UI.createImageView(cfg);
           break;
