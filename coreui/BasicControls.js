@@ -47,6 +47,12 @@ Class('iQue.UI.Button', {
 , have: {
     tiClass: 'Button'
   }
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('title');
+    }
+  }
 });
 
 Class('iQue.UI.ButtonBar', {
