@@ -7,8 +7,8 @@ Class('iQue.UI.View', {
   }
 
 , after: {
-    construct: function () {
-      this.debug("Building components...");
+    render: function () {
+      this.debug("Rendering components...");
       this.components = { };
       this.origConfig.components = this.origConfig.components || [ ];
       this.origConfig.components.each(function (item) {

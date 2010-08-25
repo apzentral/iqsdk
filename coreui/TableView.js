@@ -4,7 +4,7 @@ Class('iQue.UI.TableView', {
 , has: {
     tiClass: { is: 'ro', required: false, init: 'TableView' }
   , rows: { is: 'ro', required: false, init: null }
-  , data: { is: 'ro', required: false, init: [ ] }
+  , data: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: { } }
   }
 

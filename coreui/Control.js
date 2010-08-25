@@ -92,7 +92,6 @@ Class('iQue.UI.Control', {
     }
   , construct: function () {
       this.debug("Constructing component...");
-      this.controls = { };
 
       var cfg = apply({ }, this.origConfig.config);
 
@@ -179,6 +178,7 @@ Class('iQue.UI.Control', {
     }
   , render: function () {
       this.debug("Rendering control...");
+      this.controls = { };
       this.origConfig.controls = this.origConfig.controls || [ ];
       this.origConfig.controls.each(function (item) {
         this.debug("Building " + item.name);
