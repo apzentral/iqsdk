@@ -4,6 +4,7 @@ Class('iQue.UI.Label', {
 
 , have: {
     tiClass: 'Label'
+  , tiFactory: Ti.UI.createLabel
   }
   
 , after: {
@@ -20,51 +21,70 @@ Class('iQue.UI.Label', {
 });
 
 
-Class('iQue.UI.ImageView', {
-  isa: iQue.UI.Control
-
-, have: {
-    tiClass: 'ImageView'
-  }
-
-, after: {
-    initStrings: function () {
-      this.__themeStrings.push('image');
-    }
-  }
-
-, methods: {
-    setImage: function (url) {
-      return this.tiCtrl.setImage(url);
-    }
-  }
-});
-
-
 Class('iQue.UI.Button', {
   isa: iQue.UI.Control
 
 , have: {
     tiClass: 'Button'
+  , tiFactory: Ti.UI.createButton
   }
 
 , after: {
     initStrings: function () {
       this.__i18nStrings.push('title');
+      this.__themeStrings.push('image');
     }
   }
 });
 
-Class('iQue.UI.ButtonBar', {
+
+Class('iQue.UI.Progress', {
   isa: iQue.UI.Control
 
 , have: {
-    tiClass: 'ButtonBar'
+    tiClass: 'ProgressBar'
+  , tiFactory: Ti.UI.createProgressBar
+  }
+  
+, does: iQue.R.UI.Value
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('message');
+    }
+  }
+});
+
+
+
+Class('iQue.UI.ActivityIndicator', {
+  isa: iQue.UI.Control
+
+, have: {
+    tiClass: 'ActivityIndicator'
+  , tiFactory: Ti.UI.createActivityIndicator
   }
 
 , after: {
     initStrings: function () {
-      this.__i18nStrings.push('labels');
+      this.__i18nStrings.push('message');
+    }
+  }
+});
+
+
+
+Class('iQue.UI.iAd', {
+  isa: iQue.UI.Control
+
+, have: {
+    tiClass: 'AdView'
+  , tiFactory: Ti.UI.createAdView
+  }
+
+, methods: {
+    cancelAction: function () {
+      this.tiCtrl.cancelAction();
     }
   }
 });

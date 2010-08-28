@@ -2,7 +2,8 @@ Class('iQue.UI.TableView', {
   isa: iQue.UI.View
   
 , has: {
-    tiClass: { is: 'ro', required: false, init: 'TableView' }
+    tiClass: 'TableView'
+  , tiFactory: Ti.UI.createTableView
   , rows: { is: 'ro', required: false, init: null }
   , data: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: { } }
@@ -115,7 +116,8 @@ Class('iQue.UI.TableView.Section', {
   isa: iQue.UI.View
 
 , has: {
-    tiClass: { is: 'ro', required: false, init: 'TableViewSection' }
+    tiClass: 'TableViewSection'
+  , tiFactory: Ti.UI.createTableViewSection
   , sectionClass: { is: 'ro', required: true, init: 'default' }
   , data: { is: 'ro', required: true, init: { } }
   , mapping: { is: 'ro', required: true, init: { } }
@@ -186,7 +188,8 @@ Class('iQue.UI.TableView.Row', {
   isa: iQue.UI.TableView.Section
 
 , has: {
-    tiClass: { is: 'ro', required: false, init: 'TableViewRow' }
+    tiClass: 'TableViewRow'
+  , tiFactory: Ti.UI.createTableViewRow
   , rowClass: { is: 'ro', required: true, init: 'default' }
   }
   

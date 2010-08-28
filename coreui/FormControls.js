@@ -5,34 +5,98 @@
 var $FormControl = Class({
   isa: iQue.UI.Control
 
-, methods: {
-    getValue: function () {
-      return this.tiCtrl.getValue();
+, does: iQue.R.UI.Value
+});
+
+
+
+Class('iQue.UI.TextArea', {
+  isa: $FormControl
+
+, have: {
+    tiClass: 'TextArea'
+  , tiFactory: Ti.UI.createTextArea
+  }
+
+, does: [
+    iQue.R.UI.Focusing
+  , iQue.R.UI.Editable
+  , iQue.R.UI.Enabling
+  ]
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('value');
     }
-  , setValue: function (value) {
-      return this.tiCtrl.getValue(value);
+  }
+  
+, methods: {
+    hasText: function () { return this.tiCtrl.hasText(); }
+  }
+});
+
+
+
+Class('iQue.UI.TextField', {
+  isa: iQue.UI.TextArea
+
+, have: {
+    tiClass: 'TextField'
+  , tiFactory: Ti.UI.createTextField
+  }
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('hintText');
     }
   }
 });
 
 
-Class('iQue.UI.TextField', {
+
+Class('iQue.UI.Switch', {
   isa: $FormControl
 
 , have: {
-    tiClass: 'TextField'
+    tiClass: 'Switch'
+  , tiFactory: Ti.UI.createSwitch
   }
 
-, after: {
-    initStrings: function () {
-      this.__i18nStrings.push('value');
-      this.__i18nStrings.push('hintText');
-    }
+, does: [
+    iQue.R.UI.Enabling
+  ]
+});
+
+
+
+Class('iQue.UI.Slider', {
+  isa: $FormControl
+
+, have: {
+    tiClass: 'Slider'
+  , tiFactory: Ti.UI.createSlider
   }
   
-, methods: {
-    focus: function () {
-      return this.tiCtrl.focus();
+, does: [
+    iQue.R.UI.Enabling
+  ]
+  
+, after: {
+    initStrings: function () {
+      this.__themeStrings.push(
+        'disabledLeftTrackImage'
+      , 'disabledRightTrackImage'
+      , 'disabledThumbImage'
+      , 'highlightedLeftTrackImage'
+      , 'highlightedRightTrackImage'
+      , 'highlightedThumbImage'
+      , 'leftTrackImage'
+      , 'rightTrackImage'
+      , 'selectedLeftTrackImage'
+      , 'selectedRightTrackImage'
+      , 'selectedThumbImage'
+      , 'thumbImage'
+      );
     }
   }
 });

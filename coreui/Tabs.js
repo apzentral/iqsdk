@@ -2,7 +2,8 @@ Class('iQue.UI.TabGroup', {
   isa: iQue.UI.View
   
 , has: {
-    tiClass: { is: 'ro', required: false, init: 'TabGroup' }
+    tiClass: 'TabGroup'
+  , tiFactory: Ti.UI.createTabGroup
   , tabs: { is: 'ro', required: false, init: null }
   , windows: { is: 'ro', required: false, init: null }
   }

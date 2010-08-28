@@ -2,7 +2,8 @@ Class('iQue.UI.View', {
   isa: iQue.UI.Control
   
 , has: {
-    tiClass: { is: 'ro', required: false, init: 'View' }
+    tiClass: 'View'
+  , tiFactory: Ti.UI.createView
   , components: { is: 'ro', required: false, init: null }
   }
 
@@ -17,7 +18,7 @@ Class('iQue.UI.View', {
         if (!isFunction(constructor))
           return this.error("Component " + item.name + " does not supply proper constructor");
         try {
-          this.add(this.components[item.name] = new constructor(apply({ parent: this }, item), this.origParams));
+          this.add(new constructor(apply({ parent: this }, item), this.origParams));
         } catch (ex) {
           this.error("Exception during component build process:");
           this.error(ex);
@@ -37,22 +38,27 @@ Class('iQue.UI.View', {
 , methods: {
     add: function () {
       for (var i = 0; i < arguments.length; i++) {
-        arguments[i] && this.tiCtrl.add(arguments[i].tiCtrl || arguments[i]);
+        var view = arguments[i];
+        if (!view) continue;
+        this.components[view.name || i] = view;
+        this.doAdd(view, i);
       }
       return this;
     }
   , remove: function () {
-      for (var i = 0; i < arguments.length; i++)
-        arguments[i] && this.tiCtrl.remove(arguments[i].tiCtrl || arguments[i]);
+      for (var i = 0; i < arguments.length; i++) {
+        var view = arguments[i];
+        if (!view) continue;
+        delete this.components[view.name || i];
+        this.doRemove(view, i);
+      }
       return this;
     }
-  }
-});
-
-Class('iQue.UI.ScrollView', {
-  isa: iQue.UI.View
-  
-, has: {
-    tiClass: { is: 'ro', required: false, init: 'ScrollView' }
+  , doAdd: function (view, idx) {
+      this.tiCtrl.add(view.tiCtrl || view);
+    }
+  , doRemove: function (view, idx) {
+      this.tiCtrl.remove(view.tiCtrl || view);
+    }
   }
 });

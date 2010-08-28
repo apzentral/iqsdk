@@ -6,15 +6,23 @@ Class('iQue.UI.Control', {
   , origParams: { is: 'ro', required: false, init: { } }
   , eventListeners: { is: 'ro', required: false, init: { } }
   , tiCtrl: { is: 'ro', required: false, init: null }
+  , tiFactory: { is: 'ro', required: false, init: null }
   , tiClass: { is: 'ro', required: false }
   , i18nStrings: { is: 'ro', required: false, init: null, isPrivate: true }
   , themeStrings: { is: 'ro', required: false, init: null, isPrivate: true }
   }
   
-, does: iQue.R.Logging
+, does: [
+    iQue.R.Logging
+  ]
   
 , after: {
+
+  /*
+   * Control initialization batch
+   */
     initialize: function () {
+      // Init phase 1: build control and its parts
       try {
         if (!this.construct()) {
           this.error("Control construction faield");
@@ -26,6 +34,7 @@ Class('iQue.UI.Control', {
         return false;
       }
 
+      // Init phase 2: initialize control sub-components (rendering)
       try {
         if (!this.render()) {
           this.error("Control rendering faield");
@@ -37,6 +46,7 @@ Class('iQue.UI.Control', {
         return false;
       }
 
+      // Init phase 3: attach event listeners
       try {
         if (!this.listen()) {
           this.error("Control event binging faield");
@@ -53,6 +63,9 @@ Class('iQue.UI.Control', {
   }
   
 , methods: {
+  /*
+   * Preparing control configuration
+   */
     BUILD: function (conf, params) {
       this.initStrings();
       conf = conf || { };
@@ -90,6 +103,10 @@ Class('iQue.UI.Control', {
         return fn(itm);
       return itm;
     }
+    
+  /*
+   * Construct, render and listen routines
+   */
   , construct: function () {
       this.debug("Constructing component...");
 
@@ -112,55 +129,13 @@ Class('iQue.UI.Control', {
         }
       }, this);
 
-      var constructor = Ti.UI['create' + this.tiClass];
-      if (!isFunction(constructor)) {
-        this.error("Unknown Titanium control constructor: " + this.tiClass);
+      if (!isFunction(this.tiFactory)) {
+        this.error("Error creating control: tiFactory is not a function");
+        this.tiCtrl = null;
         return false;
       }
-      // This complicated switch is required because of quite odd bug
-      // in Titanium (Kroll actially) which fails to execute functions referenced
-      // in form of Ti.UI['create' + this.tiClass](cfg);
-      switch (this.tiClass) {
-        case 'Button':
-          this.tiCtrl = Ti.UI.createButton(cfg);
-          break;
-        case 'ButtonBar':
-          this.tiCtrl = Ti.UI.createButtonBar(cfg);
-          break;
-        case 'Label':
-          this.tiCtrl = Ti.UI.createLabel(cfg);
-          break;
-        case 'TextField':
-          this.tiCtrl = Ti.UI.createTextField(cfg);
-          break;
-        case 'ImageView':
-          this.tiCtrl = Ti.UI.createImageView(cfg);
-          break;
-        case 'View':
-          this.tiCtrl = Ti.UI.createView(cfg);
-          break;
-        case 'ScrollView':
-          this.tiCtrl = Ti.UI.createScrollView(cfg);
-          break;
-        case 'Window':
-          this.tiCtrl = Ti.UI.createWindow(cfg);
-          break;
-        case 'TableView':
-          this.tiCtrl = Ti.UI.createTableView(cfg);
-          break;
-        case 'TableViewRow':
-          this.tiCtrl = Ti.UI.createTableViewRow(cfg);
-          break;
-        case 'TableViewSection':
-          this.tiCtrl = Ti.UI.createTableViewSection(cfg);
-          break;
-        case 'TabGroup':
-          this.tiCtrl = Ti.UI.createTabGroup(cfg);
-          break;
-        default:
-          this.error("Unsupported Titanium control constructor: " + this.tiClass);
-          return false;
-      }
+      this.tiCtrl = this.tiFactory(cfg);
+      
       return true;
     }
   , listen: function () {
@@ -201,10 +176,21 @@ Class('iQue.UI.Control', {
       }, this);
       return true;
     }
+
+  /*
+   * Wrappers for Titanium API functions
+   */
   , show: function () { this.tiCtrl.show(); return this; }
   , hide: function () { this.tiCtrl.hide(); return this; }
+  , isVisible: function () { return this.tiCtrl.visible; }
   , animate: function (anim, cb) { this.tiCtrl.animate(anim, cb); return this; }
-
+  , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
+  , getProperty: function (prop) { return this.tiCtrl[prop]; }
+  , setProperty: function (prop, value) { this.tiCtrl[prop] = value; }
+  
+  /*
+   * Event listeners
+   */
   , on: function (eventName, cb, scope) {
       var fn = cb.bind(scope || this);
       this.eventListeners[eventName] = this.eventListeners[eventName] || { };
@@ -217,8 +203,10 @@ Class('iQue.UI.Control', {
       this.tiCtrl.reomveEventListener(eventName, fn || cb);
   	  return this;
     }
-  , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
-  
+
+  /*
+   * iQuePath functions
+   */
   , iquePath: function (route) {
       try {
         this.debug("Processing iQue path expression " + route);
