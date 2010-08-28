@@ -29,6 +29,12 @@ Class('iQue.UI.TextField', {
       this.__i18nStrings.push('hintText');
     }
   }
+  
+, methods: {
+    focus: function () {
+      return this.tiCtrl.focus();
+    }
+  }
 });
 
 }) ();
