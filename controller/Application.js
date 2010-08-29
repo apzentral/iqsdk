@@ -38,7 +38,7 @@ Class('iQue.Application', {
       try {
         this.INNER();
       } catch (ex) {
-        this.error("Failed to load portfolio, exception raised:");
+        this.error("Failed to load data, exception raised:");
         this.error(ex);
         return false;
       }

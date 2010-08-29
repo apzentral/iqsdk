@@ -1,7 +1,7 @@
 Class('iQue.UI.Window', {
   isa: iQue.UI.View
   
-, has: {
+, have: {
     tiClass: 'Window'
   , tiFactory: Ti.UI.createWindow
   }

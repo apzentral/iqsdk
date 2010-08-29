@@ -2,11 +2,14 @@ Class('iQue.UI.TableView', {
   isa: iQue.UI.View
   
 , has: {
-    tiClass: 'TableView'
-  , tiFactory: Ti.UI.createTableView
-  , rows: { is: 'ro', required: false, init: null }
+    rows: { is: 'ro', required: false, init: null }
   , data: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: { } }
+  }
+  
+, have: {
+    tiClass: 'TableView'
+  , tiFactory: Ti.UI.createTableView
   }
 
 , before: {
@@ -116,12 +119,15 @@ Class('iQue.UI.TableView.Section', {
   isa: iQue.UI.View
 
 , has: {
-    tiClass: 'TableViewSection'
-  , tiFactory: Ti.UI.createTableViewSection
-  , sectionClass: { is: 'ro', required: true, init: 'default' }
+    sectionClass: { is: 'ro', required: true, init: 'default' }
   , data: { is: 'ro', required: true, init: { } }
   , mapping: { is: 'ro', required: true, init: { } }
   , layout: { is: 'ro', required: true, init: null }
+  }
+  
+, have: {
+    tiClass: 'TableViewSection'
+  , tiFactory: Ti.UI.createTableViewSection
   }
 
 , override: {
@@ -188,9 +194,12 @@ Class('iQue.UI.TableView.Row', {
   isa: iQue.UI.TableView.Section
 
 , has: {
+    rowClass: { is: 'ro', required: true, init: 'default' }
+  }
+  
+, have: {
     tiClass: 'TableViewRow'
   , tiFactory: Ti.UI.createTableViewRow
-  , rowClass: { is: 'ro', required: true, init: 'default' }
   }
   
 , hasnt: [ 'sectionClass' ]

@@ -2,9 +2,12 @@ Class('iQue.UI.View', {
   isa: iQue.UI.Control
   
 , has: {
+    components: { is: 'ro', required: false, init: null }
+  }
+  
+, have: {
     tiClass: 'View'
   , tiFactory: Ti.UI.createView
-  , components: { is: 'ro', required: false, init: null }
   }
 
 , after: {
@@ -40,7 +43,8 @@ Class('iQue.UI.View', {
       for (var i = 0; i < arguments.length; i++) {
         var view = arguments[i];
         if (!view) continue;
-        this.components[view.name || i] = view;
+        var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
+        this.components[name] = view;
         this.doAdd(view, i);
       }
       return this;
@@ -49,7 +53,8 @@ Class('iQue.UI.View', {
       for (var i = 0; i < arguments.length; i++) {
         var view = arguments[i];
         if (!view) continue;
-        delete this.components[view.name || i];
+        var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
+        delete this.components[name];
         this.doRemove(view, i);
       }
       return this;

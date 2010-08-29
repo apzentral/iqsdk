@@ -2,10 +2,13 @@ Class('iQue.UI.TabGroup', {
   isa: iQue.UI.View
   
 , has: {
+    tabs: { is: 'ro', required: false, init: null }
+  , windows: { is: 'ro', required: false, init: null }
+  }
+  
+, have: {
     tiClass: 'TabGroup'
   , tiFactory: Ti.UI.createTabGroup
-  , tabs: { is: 'ro', required: false, init: null }
-  , windows: { is: 'ro', required: false, init: null }
   }
 
 , after: {
@@ -21,10 +24,12 @@ Class('iQue.UI.TabGroup', {
           title: iQue.i18n(cfg.title),
           window: win.getTiCtrl()
         });
+        this.debug("Tab " + cfg.name + " created");
         this.tiCtrl.addTab(tab);
         this.tabs[cfg.name] = tab;
         this.windows[cfg.name] = win;
       }, this);
+      this.debug("Tabs rendered");
       return true;
     }
   }

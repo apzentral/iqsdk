@@ -106,7 +106,7 @@ Class('iQue.UI.CoverFlowView', {
 Class('iQue.UI.ScrollView', {
   isa: iQue.UI.View
   
-, has: {
+, have: {
     tiClass: 'ScrollView'
   , tiFactory: Ti.UI.createScrollView
   }
@@ -124,12 +124,15 @@ Class('iQue.UI.ScrollableView', {
   isa: iQue.UI.View
   
 , has: {
+    viewIndexes: { required: false, init: null }
+  }
+  
+, have: {
     tiClass: 'ScrollableView'
   , tiFactory: Ti.UI.createScrollableView
-  , viewIndexes: { required: false, init: null }
   }
 
-, before: function () {
+, before: {
     render: function () {
       this.viewIndexes = [ ];
     }

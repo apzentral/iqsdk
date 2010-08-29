@@ -135,7 +135,7 @@ Class('iQue.UI.Control', {
         return false;
       }
       this.tiCtrl = this.tiFactory(cfg);
-      
+
       return true;
     }
   , listen: function () {
@@ -161,14 +161,15 @@ Class('iQue.UI.Control', {
       this.debug("Rendering control...");
       this.controls = { };
       this.origConfig.controls = this.origConfig.controls || [ ];
-      this.origConfig.controls.each(function (item) {
+      this.origConfig.controls.each(function (item, idx) {
         this.debug("Building " + item.name);
         var constructor = item.builder;
         if (!isFunction(constructor))
           return this.error("Component " + item.name + " does not supply proper constructor");
         try {
-          var ctrl = this.controls[item.name] = new constructor(apply({ parent: this }, item));
-          this.tiCtrl[item.location] = ctrl.tiCtrl || ctrl;
+          var ctrl = new constructor(apply({ parent: this }, item));
+          this.controls[item.name || idx] = ctrl;
+          this.tiCtrl[item.location] = ctrl.tiCtrl;
         } catch (ex) {
           this.error("Exception during component build process:");
           this.error(ex);

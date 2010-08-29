@@ -12,9 +12,10 @@ iQue = {
 , buildComponent: function (item, params) {
     var constructor = item.builder;
     if (!isFunction(constructor)) {
-      this.error("Component " + item.name + " does not supply proper constructor");
+      error("Component " + item.name + " does not supply proper constructor");
       return null;
     }
+    debug("Calling constructor for " + item.name + " (" + item.builder.meta.name + ")");
     return new constructor(item, params);
   }
   
@@ -38,6 +39,7 @@ iQue = {
 
 include('lib/ique/roles/Analytics.js');
 include('lib/ique/roles/Logging.js');
+include('lib/ique/roles/UI.js');
 
 include('lib/ique/controller/Application.js');
 include('lib/ique/coreui/coreui.js');
