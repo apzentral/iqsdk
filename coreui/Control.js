@@ -142,18 +142,28 @@ Class('iQue.UI.Control', {
       this.debug("Attaching event listeners...");
       var listeners = this.origConfig.listeners = this.origConfig.listeners || { };
       for (var event in listeners) {
-        var li = listeners[event];
-        var fn = li.handler || li;
-        var scope = li.scope || this;
-        if (!isFunction(fn))
-          fn = this.iquePath(fn);
-        if (isString(scope))
-          scope = this.iquePath(scope);
-        if (!isFunction(fn)) {
-          this.error("Bad listener " + fn + " for " + event + " event");
-          continue;
-        }
-        this.on(event, fn, scope);
+        (function () {
+          var li = listeners[event];
+          var fn = li.handler || li;
+          var scope = li.scope || this;
+          var called = false;
+          function _lateBinder () {
+            if (called) return;
+            if (!isFunction(fn))
+              fn = this.iquePath(fn);
+            if (isString(scope))
+              scope = this.iquePath(scope);
+            if (!isFunction(fn)) {
+              this.error("Bad listener " + fn + " for " + event + " event");
+              continue;
+            }
+            this.on(event, fn, scope);
+            called = true;
+            this.un(event, _lateBinder);
+            fn.apply(scope, arguments);
+          }
+          this.on(event, _lateBinder, this);
+        }).call(this);
       }
       return true;
     }
@@ -193,15 +203,24 @@ Class('iQue.UI.Control', {
    * Event listeners
    */
   , on: function (eventName, cb, scope) {
-      var fn = cb.bind(scope || this);
-      this.eventListeners[eventName] = this.eventListeners[eventName] || { };
-      this.eventListeners[cb] = fn;
-      this.tiCtrl.addEventListener(eventName, fn);
+      try {
+        var fn = cb;
+        this.eventListeners[eventName] = this.eventListeners[eventName] || { };
+        this.tiCtrl.addEventListener(eventName, this.eventListeners[eventName][cb] = fn.bind(scope || this));
+      } catch (ex) {
+        this.error("Error attaching listener for event " + eventName + ":");
+        this.logException(ex);
+      }
   	  return this;
     }
   , un: function (eventName, cb) {
-      var fn = this.eventListeners[eventName] && this.eventListeners[eventName][cb];
-      this.tiCtrl.reomveEventListener(eventName, fn || cb);
+      try {
+        var fn = this.eventListeners[eventName] && this.eventListeners[eventName][cb];
+        this.tiCtrl.removeEventListener(eventName, fn || cb);
+      } catch (ex) {
+        this.error("Error removing listener for event " + eventName + ":");
+        this.logException(ex);
+      }
   	  return this;
     }
 
