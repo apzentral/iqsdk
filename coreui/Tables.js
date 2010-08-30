@@ -187,6 +187,9 @@ Class('iQue.UI.TableView.Section', {
     appendRow: function (row) {
       return this.tiCtrl.add(row.tiCtrl || row);
     }
+  , deleteRow: function (row) {
+      return this.tiCtrl.remove(row.tiCtrl || row);
+    }
   }
 });
 
