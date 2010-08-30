@@ -67,3 +67,41 @@ Class('iQue.UI.EmailDialog', {
   , attach: function (file) { this.tiCtrl.addAttachment(file); }
   }
 });
+
+
+Class('iQue.UI.AlertDialog', {
+  isa: iQue.UI.Dialog
+
+, have: {
+    tiClass: 'AlertDialog'
+  , tiFactory: Ti.UI.createAlertDialog
+  }
+
+, override: {
+    BUILD: function (title, message, buttons, cancel) {
+      return this.SUPER({
+        config: {
+          title: title
+        , message: message
+        , buttonNames: buttons || [ ]
+        , cancel: cancel
+        }
+      });
+    }
+  }
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push(
+        'title'
+      , 'message'
+      , 'buttonNames'
+      );
+    }
+  }
+
+, methods: {
+    show: function () { this.tiCtrl.show(); }
+  , hide: function () { this.tiCtrl.hide(); }
+  }
+});
