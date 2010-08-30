@@ -216,19 +216,25 @@ Class('iQue.UI.Control', {
           var type = '<non-iQue component>';
           try { type = obj.meta.name; } catch (ex) { ; };
           this.debug("Parsing path component: " + item + " for " + type);
-          if (isFunction(obj.iqueAxis)) obj = obj.iqueAxis(item);
+          if (isFunction(obj.iqueAxis)) obj = obj.iqueAxis.call(obj, item);
+          var axis = item[0];
           item = item.replace(/^[^\w\d]/, '');
-          if (item.length == '') return;
+          if (item.isBlank()) return;
+          if (!obj) {
+            this.error("No object for the axis " + axis + " and item " + item);
+            throw null;
+          }
           if (!obj[item]) {
             this.error("Error processing iQue path expression: undefined component " + item);
-            throw "Unknown iQue path component " + item;
+            throw null;
           }
           obj = obj[item];
         }, this);
         return obj;
       } catch (ex) {
         this.error("Wrong iQue path expression: " + route);
-        this.error("Exception details: " + ex);
+        if (ex)
+          this.error("Exception details: " + ex);
         return this;
       }
     }
