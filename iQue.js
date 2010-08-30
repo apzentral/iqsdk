@@ -20,7 +20,12 @@ iQue = {
   }
   
 , callPhone: function (number) {
-    Ti.Platform.openURL('tel://' + number.replace(/[^\d\+]+/g, ''));
+    var phone = 'tel://' + number.replace(/[^\d\+]+/g, '');
+    if (Ti.Platform.model == 'Simulator') {
+      alert('Making call to ' + phone);
+    } else {
+      Ti.Platform.openURL(phone);
+    }
   }
 , openWebSite: function (url) {
     Ti.Platform.openURL(url);
