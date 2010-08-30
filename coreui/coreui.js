@@ -3,6 +3,8 @@ include('lib/ique/coreui/Control.js');
 include('lib/ique/coreui/BasicControls.js');
 include('lib/ique/coreui/FormControls.js');
 
+include('lib/ique/coreui/Dialogs.js');
+
 include('lib/ique/coreui/View.js');
 include('lib/ique/coreui/BasicViews.js');
 include('lib/ique/coreui/BarViews.js');
