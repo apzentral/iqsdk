@@ -29,6 +29,8 @@ Class('iQue.UI.Button', {
   , tiFactory: Ti.UI.createButton
   }
 
+, does: iQue.R.UI.Enabling
+
 , after: {
     initStrings: function () {
       this.__i18nStrings.push('title');
