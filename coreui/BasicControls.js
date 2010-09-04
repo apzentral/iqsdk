@@ -15,7 +15,7 @@ Class('iQue.UI.Label', {
 
 , methods: {
     setText: function (text) {
-      return this.tiCtrl.setText(text);
+      return this.tiCtrl.setText(iQue.i18n(text));
     }
   }
 });
@@ -35,6 +35,15 @@ Class('iQue.UI.Button', {
     initStrings: function () {
       this.__i18nStrings.push('title');
       this.__themeStrings.push('image');
+    }
+  }
+  
+, methods: {
+    setImage: function (img) {
+      return this.tiCtrl.setImage(iQue.theme(img));
+    }
+  , setText: function (text) {
+      return this.tiCtrl.setText(iQue.i18n(text));
     }
   }
 });
