@@ -1,5 +1,5 @@
 
-Class('iQue.DB.RecordSet', {
+Class('iQue.DB.SqlRecordSet', {
   has: {
     rs: { is: 'ro', required: true }
   , fields: { is: 'ro', required: true }
@@ -20,15 +20,15 @@ Class('iQue.DB.RecordSet', {
       return this.count() == 0;
     }
   
-  , each: function (iterator) {
-      this.getResults().each(iterator);
+  , each: function (iterator, scope) {
+      this.getResults().each(iterator, scope || this);
       return this;
     }
-  , collect: function (iterator) {
-      return this.getResults().collect(iterator);
+  , collect: function (iterator, scope) {
+      return this.getResults().collect(iterator, scope || this);
     }
-  , first: function (iterator) {
-      return this.getResults().first(iterator);
+  , first: function (iterator, scope) {
+      return this.getResults().first(iterator, scope || this);
     }
   , getResults: function () {
       if (this.results) return this.results;

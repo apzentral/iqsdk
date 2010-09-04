@@ -1,7 +1,5 @@
 
-namespace('iQue.DB');
-
-Class('iQue.DB.Database', {
+Class('iQue.DB.SqlStore', {
   VERSION: '0.1'
 , AUTHORITY: 'com:dev-ique'
   
@@ -77,7 +75,7 @@ Class('iQue.DB.Database', {
         var query = this.__constructSQLQuery(table, fields, where);
         this.debug("Executing SQL query:");
         this.debug(query);
-        return new iQue.DB.RecordSet(this.db.execute(query), fields);
+        return new iQue.DB.SqlRecordSet(this.db.execute(query), fields);
       } catch (ex) {
         this.error("Exception during query execution: " + ex);
         throw "Error executing SQL query";

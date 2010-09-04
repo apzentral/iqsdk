@@ -1,5 +1,5 @@
 
-Class('iQue.DB.Record', {
+Class('iQue.DB.SqlRecord', {
   has: {
     fields: { is: 'ro', required: true }
   }
