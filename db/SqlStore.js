@@ -69,10 +69,10 @@ Class('iQue.DB.SqlStore', {
       return true;
     }
 
-  , select: function (table, fields, where) {
+  , select: function (table, fields, where, opts) {
       if (!this.check("SELECT")) throw "Database is not initialized";
       try {
-        var query = this.__constructSQLQuery(table, fields, where);
+        var query = this.__constructSQLQuery(table, fields, where, opts);
         this.debug("Executing SQL query:");
         this.debug(query);
         return new iQue.DB.SqlRecordSet(this.db.execute(query), fields);
@@ -81,31 +81,66 @@ Class('iQue.DB.SqlStore', {
         throw "Error executing SQL query";
       }
     }
-  , __constructSQLQuery: function (table, fields, where) {
+  , __constructSQLQuery: function (table, fields, where, opts) {
       var query = [ ];
       for (var a in where) {
-        var val = this.__value2SQL(where[a]);
-        if (isArray(val)) {
-          val = " IN(" + val.collect(function (v) { 
-            v = this.__value2SQL(v);
-            if (!isString(v)) {
-              this.error("Bad value supplied in WHERE part of SQL request: " + v);
-              return null;
-            }
-            return v;
-          }, this).compact().join(',') + ")";
-        } else if (val === null || val === undefined) {
-          val = "IS NULL";
-        } else if (isString(val)) {
-          val = "= " + val;
-        } else {
-          this.error("Bad value supplied in WHERE part of SQL request: " + val);
-          val = "";
+        try {
+          var val = this.__value2SQL(where[a]);
+          if (isArray(val)) {
+            val = " IN(" + val.collect(function (v) { 
+              v = this.__value2SQL(v);
+              if (!isString(v)) {
+                this.error("Bad value supplied in WHERE part of SQL request: " + v);
+                return null;
+              }
+              return v;
+            }, this).compact().join(',') + ")";
+          } else if (val === null || val === undefined) {
+            val = "IS NULL";
+          } else if (isString(val)) {
+            val = "= " + val;
+          } else if (isObject(val)) {
+            if (isDefined(val.like))
+              val = ' LIKE "' + val.like.replace('"', '\\"') + '"';
+            else if (isDefined(val.lt))
+              val = ' < ' + val.lt;
+            else if (isDefined(val.le))
+              val = ' <= ' + val.le;
+            else if (isDefined(val.gt))
+              val = ' > ' + val.gt;
+            else if (isDefined(val.ge))
+              val = ' >= ' + val.ge;
+            else
+              throw("Custom comparison object does not provide any of recognizable keys (like, lt, gt, le, ge): " + val);
+          } else {
+            throw("Unsupported value for the key " + a);
+          }
+          query.push(a + val);
+        } catch (ex) {
+          this.error("Bad value supplied in WHERE part of SQL request; key=" + a + ", value=" + val);
+          this.error(ex);
         }
-
-        query.push(a + val);
       }
-      return sql = "SELECT DISTINCT " + fields.join(',') + " FROM '" + table + "' WHERE " + query.join(',');
+      var sql = "SELECT DISTINCT " + fields.join(',') + " FROM '" + table + "' WHERE " + query.join(',');
+      if (isObject(opts)) {
+        if (isString(opts.order)) {
+          sql += " ORDER BY " + opts.order + " ASC";
+        } else if (isArray(opts.order)) {
+          sql += " ORDER BY " + opts.order.collect(function (o) {
+            if (isString(o)) return o + " ASC";
+            else if (isObject(o)) return Object.keys(o)[0] + Object.values(o)[0];
+          }).compact().uniq().join(', ');
+        }
+        
+        if (isDefined(opts.offset)) {
+          sql += " OFFSET " + parseInt(opts.offset);
+        }
+        
+        if (isDefined(opts.limit)) {
+          sql += " LIMIT " + parseInt(opts.limit);
+        }
+      }
+      return sql;
     }
   , __value2SQL: function (val) {
       if (isFunction(val))
