@@ -37,7 +37,10 @@ Class('iQue.UI.TableView', {
       this.data = this.data || [ ];
       return this.data;
     }
-
+  , refresh: function () {
+      this.tiCtrl.setData([ ]);
+      this.renderRows();
+    }
   , renderRows: function () {
       this.getData().each(this.renderRow, this);
     }
