@@ -63,7 +63,10 @@ Class('iQue.UI.SearchBar', {
       );
       this.__themeStrings.push('barImage')
     }
-  , getValue: function () { return this.tiCtrl.value; }
+  }
+
+, methods: {
+    getValue: function () { return this.tiCtrl.value; }
   , setValue: function (val) { this.tiCtrl.value = val; }
   }
 });
