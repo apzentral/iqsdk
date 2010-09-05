@@ -34,6 +34,14 @@ Class('iQue.UI.TabGroup', {
     }
   }
 
+, override: {
+    iqueAxis: function (item) {
+      if (item.startsWith('@')) return this.windows;
+      else if (item.startsWith('*')) return this.tabs;
+      else return this.SUPER(item);
+    }
+  }
+
 , methods: {
     open: function () {
       this.tiCtrl.open();
