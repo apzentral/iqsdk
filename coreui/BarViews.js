@@ -16,7 +16,7 @@ Class('iQue.UI.ButtonBar', {
 
 
 Class('iQue.UI.TabbedBar', {
-  isa: iQue.UI.ButtonBa
+  isa: iQue.UI.ButtonBar
 
 , have: {
     tiClass: 'TabbedBar'
@@ -63,5 +63,7 @@ Class('iQue.UI.SearchBar', {
       );
       this.__themeStrings.push('barImage')
     }
+  , getValue: function () { return this.tiCtrl.value; }
+  , setValue: function (val) { this.tiCtrl.value = val; }
   }
 });
