@@ -148,19 +148,25 @@ Class('iQue.UI.Control', {
           var scope = li.scope || this;
           var called = false;
           function _lateBinder () {
-            if (called) return;
-            if (!isFunction(fn))
-              fn = this.iquePath(fn);
-            if (isString(scope))
-              scope = this.iquePath(scope);
-            if (!isFunction(fn)) {
-              this.error("Bad listener " + fn + " for " + event + " event");
-              continue;
+            this.debug("Executing late event binding...");
+            try {
+              //if (called) return;
+              if (!isFunction(fn))
+                fn = this.iquePath(fn);
+              if (isString(scope))
+                scope = this.iquePath(scope);
+              if (!isFunction(fn)) {
+                this.error("Bad listener " + fn + " for " + event + " event");
+                continue;
+              }
+              //this.un(event, _lateBinder);
+              //this.on(event, fn, scope);
+              //called = true;
+              fn.apply(scope, arguments);
+            } catch (ex) {
+              this.error("Late event binding failed because of exception:");
+              this.error(ex);
             }
-            this.on(event, fn, scope);
-            called = true;
-            this.un(event, _lateBinder);
-            fn.apply(scope, arguments);
           }
           this.on(event, _lateBinder, this);
         }).call(this);
