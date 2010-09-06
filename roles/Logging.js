@@ -12,6 +12,10 @@ Role('iQue.R.Logging', {
       Ti.Analytics.userEvent('exception', { component: this.meta.name, exception: ex });
       Ti.API.error(ex);
     }
+  , dumpObject: function (obj, comment) {
+      isString(comment) && this.info(comment);
+      Ti.API.info(obj);
+    }
 
   , error: function (msg) {
       Ti.API.error(this.formatLogMessage(msg));
