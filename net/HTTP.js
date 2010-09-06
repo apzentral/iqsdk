@@ -18,6 +18,8 @@ Class('iQue.HTTP.Client', {
   , ssl: { init: false, is: 'ro' }
   }
 
+, does: iQue.R.Logging
+
 , methods: {
     BUILD: function (server, port, ssl) {
       var obj = { server: server };
@@ -73,24 +75,35 @@ Class('iQue.HTTP.Client.Titanium', {
 , augment: {
     request: function (method, url, opts) {
       opts = opts || { };
-      var req = this.engine();
+      var me = this;
+      var req = me.engine();
+      me.debug("Sending HTTP " + method + " " + url);
       req.onload = function () {
         var data = this.responseText;
-        if (opts.responseFormat == 'xml')
+        me.debug("Got HTTP response...");
+        me.dumpObject(data);
+        if (opts.responseFormat == 'xml') {
           data = this.responseXML;
-        else if (opts.responseFormat == 'json') {
+        } else if (opts.responseFormat == 'binary') {
+          data = this.responseData;
+        } else if (opts.responseFormat == 'json') {
           try {
             data = JSON.parse(this.responseText);
           } catch (ex) {
-            return isFunction(opts.on.failure) && opts.on.failure(opts.scope, { exception: ex, source: this.responseText }, 'json');
+            me.error("Error parsing JSON object:");
+            me.logException(ex);
+            if (isFunction(opts.on.failure))
+              opts.on.failure.call(opts.scope, { exception: ex, source: this.responseText }, 'json');
+            return
           }
         }
-        isFunction(opts.on.success) && opts.on.success(opts.scope, data, this.status);
+        isFunction(opts.on.success) && opts.on.success.call(opts.scope, data, this.status);
       };
       req.onerror = function () {
-        isFunction(opts.on.failure) && opts.on.failure(opts.scope, this.responseText, this.status);
+        me.error("HTTP error: " + this.status + "; " + this.responseText);
+        isFunction(opts.on.failure) && opts.on.failure.call(opts.scope, this.responseText, this.status);
       };
-      req.open(method, url);
+      req.open(method, 'http' + (this.ssl ? 's' : '') + '://' + this.server + ':' + this.port + url);
       if (isObject(opts.headers))
         for (var k in opts.headers)
           req.setRequestHeader(k, opts.headers[k]);
