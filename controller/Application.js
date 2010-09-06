@@ -58,5 +58,9 @@ Class('iQue.Application', {
       }
       return true;
     }
+    
+  , iquePath: function (path) {
+      return this.__tabCtrl.iquePath(path);
+    }
   }
 });
