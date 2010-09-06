@@ -5,6 +5,7 @@ Class('iQue.UI.TableView', {
     rows: { is: 'ro', required: false, init: null }
   , data: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: { } }
+  , dataSource: { is: 'ro', required: false, init: null }
   }
   
 , have: {
@@ -13,7 +14,10 @@ Class('iQue.UI.TableView', {
   }
 
 , before: {
-    construct: function () {
+    initialize: function () {
+      this.dataSource = this.origConfig.dataSource;
+    }
+  , construct: function () {
       this.rows = { };
     }
   }
@@ -34,11 +38,15 @@ Class('iQue.UI.TableView', {
 
 , methods: {
     getData: function () {
-      this.data = this.data || [ ];
+      if (!this.data && this.dataSource)
+        this.data = isFunction(this.dataSource) ? this.dataSource() : this.dataSource;
+      else
+        this.data = this.data || [ ];
       return this.data;
     }
   , refresh: function () {
       this.tiCtrl.setData([ ]);
+      this.data = null;
       this.renderRows();
     }
   , renderRows: function () {
