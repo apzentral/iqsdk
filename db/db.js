@@ -1,6 +1,8 @@
 
 namespace('iQue.DB');
 
+include('lib/ique/db/RemoteObject.js');
+
 include('lib/ique/db/PropertiesStore.js');
 
 include('lib/ique/db/SqlStore.js');
