@@ -120,7 +120,8 @@ Class('iQue.UI.Control', {
           if (isString(scope)) scope = this.iquePath(scope);
           if (!isFunction(generator)) generator = this.iquePath(generator);
           if (!isFunction(generator))
-            this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
+            cfg[dytem.attribute] = this.preprocessAttribute(dytem.attribute, generator);
+            //this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
           else
             cfg[dytem.attribute] = this.preprocessAttribute(dytem.attribute, generator.call(scope || this, this));
         } catch (ex) {
