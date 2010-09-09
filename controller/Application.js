@@ -19,16 +19,18 @@ Class('iQue.Application', {
   , createWindow: function (layout, params) {
       return this.openWindow(iQue.buildComponent(layout, params));
     }
-  , openWindow: function (win) {
+  , openWindow: function (win, loc) {
       if (!this.hasTabsLayout()) {
-        var msg = "Application#openWindow function shouldn't be called for non-tab application layouts";
-        this.error(msg);
-        throw msg;
+        this.view.openWindow(win, loc);
+        //var msg = "Application#openWindow function shouldn't be called for non-tab application layouts";
+        //this.error(msg);
+        //throw msg;
+      } else {
+        var origWin = this.view.getActiveWindow();
+        var name = win.getName();
+        Ti.Analytics.navEvent(origWin.getName(), name, 'nav.' + name, null);
+        return this.getActiveTab().open(win.tiCtrl, anim);
       }
-      var origWin = this.view.getActiveWindow();
-      var name = win.getName();
-      Ti.Analytics.navEvent(origWin.getName(), name, 'nav.' + name, null);
-      return this.getActiveTab().open(win.tiCtrl);
     }
     
   , getActiveTab: function () {
@@ -67,7 +69,7 @@ Class('iQue.Application', {
       try {
         this.layout = this.loadLayout();
         switch (this.layout.type) {
-          case 'split': this.layout.builder = iQue.UI.SplitView; break;
+          case 'split': this.layout.builder = iQue.UI.Split; break;
           case 'tabs': this.layout.builder = iQue.UI.TabGroup; break;
         }
         this.view = iQue.buildComponent(this.layout, { });
@@ -84,7 +86,7 @@ Class('iQue.Application', {
   , hasTabsLayout: function () {
       return this.layout.type == 'tabs';
     }
-  , hadSplitLayout: function () {
+  , hasSplitLayout: function () {
       return this.layout.type == 'split';
     }
   , hasCustomLayout: function () {

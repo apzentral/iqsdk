@@ -9,7 +9,9 @@ include('lib/ique/coreui/View.js');
 include('lib/ique/coreui/BasicViews.js');
 include('lib/ique/coreui/BarViews.js');
 include('lib/ique/coreui/Maps.js');
+include('lib/ique/coreui/Tables.js');
 
 include('lib/ique/coreui/Window.js');
 include('lib/ique/coreui/Tabs.js');
-include('lib/ique/coreui/Tables.js');
+include('lib/ique/coreui/Navigation.js');
+include('lib/ique/coreui/Split.js');
