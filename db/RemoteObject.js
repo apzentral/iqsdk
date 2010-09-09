@@ -6,6 +6,7 @@ Class('iQue.DB.RemoteObject', {
   , url: { is: 'ro', required: true, description: 'URL to take the data from' }
   , data: { is: 'ro', required: false, init: null }
   , callback: { is: 'rw', required: false, init: null }
+  , scope: { is: 'rw', required: false }
   }
 
 , does: iQue.R.Logging
@@ -14,6 +15,8 @@ Class('iQue.DB.RemoteObject', {
     initialize: function () {
 	    this.debug("Initializing remote object for " + this.server + ':' + this.port + this.url);
       this.httpClient = iQue.HTTP.createClient(this.server, this.port, this.ssl);
+      if (this.callback)
+        this.download(this.callback, this.scope);
 	  }
   }
 
@@ -33,15 +36,15 @@ Class('iQue.DB.RemoteObject', {
     }
     
   , onDownloadSuccess: function (json) {
-      this.info("Remote object was successfully retrieved");
+      this.debug("Remote object was successfully retrieved");
       this.data = json;
-      if (isFunction(this.callback)) this.callback(json);
+      if (isFunction(this.callback)) this.callback.call(this.scope || this, json);
     }
     
   , onDownloadFailure: function (info, type) {
       this.error("Can't get remote object: error " + type);
       this.dumpObject(info);
-      if (isFunction(this.callback)) this.callback();
+      if (isFunction(this.callback)) this.callback.call(this.scope || this);
     }
   }
 });

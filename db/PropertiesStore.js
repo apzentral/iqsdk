@@ -25,9 +25,7 @@ iQue.DB.PropertiesStore = new (Class({
 
   , getArray: function (key) {
       try {
-        var val = Ti.App.Properties.getString(key, "[ ]");
-        if (!isString(val) || val.isBlank()) return [ ];
-        return JSON.parse(val);
+        return Ti.App.Properties.getList(key, [ ]) || [ ];
       } catch (ex) {
         this.error("Exception during reading array key value from the store");
         this.error(ex);
@@ -42,7 +40,7 @@ iQue.DB.PropertiesStore = new (Class({
         throw msg;
       }
       try {
-        Ti.App.Properties.setString(key, JSON.stringify(ary));
+        Ti.App.Properties.setList(key, ary);
       } catch (ex) {
         this.error("Exception during saving array key value to the store");
         this.error(ex);
