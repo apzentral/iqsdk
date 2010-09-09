@@ -8,6 +8,13 @@ Class('iQue.DB.SqlStore', {
   , path: { is: 'ro', required: true }
   , db:   { is: 'ro', required: false, init: null }
   , clear: { is: 'ro', required: true, init: false }
+  , updatesServer: { is: 'ro', required: false }
+  , updatesUrl: { is: 'ro', required: false }
+  , updatesCallback: { is: 'ro', required: false }
+  }
+  
+, have: {
+    updated: false
   }
   
 , does: iQue.R.Logging
@@ -120,6 +127,174 @@ Class('iQue.DB.SqlStore', {
         this.logException(ex);
       }
     }
+    
+  , checkUpdates: function (server, url, cb, scope) {
+      if (isUndefined(server))
+        server = this.updatesServer;
+      if (isUndefined(url))
+        url = this.updatesUrl;
+      this.debug("Checking updates for database " + this.name + " at http://" + server + url);
+      try {
+        if (isFunction(cb))
+          this.updatesCallback = cb.bind(scope || this);
+        new iQue.DB.RemoteObject({ 
+          server: this.updatesServer = server
+        , url: this.updatesUrl = url
+        , callback: this.processUpdates
+        , scope: this
+        });
+        return true;
+      } catch (ex) {
+        this.error("Exception during database updates check:");
+        this.logException(ex);
+        return false;
+      }
+    }
+  , processUpdates: function (updates) {
+      if (isUndefined(updates))
+        return this.error("Can't find remote update info for database " + this.name);
+      try {
+        var availableUpdates = updates.pluck('id');
+        var installedUpdates = iQue.DB.PropertiesStore.getArray(this.my.PROPERTYSTORE_UPDATES.format(this.name));
+        this.debug("List of installed updates: " + installedUpdates.join(', '));
+        this.debug("List of available updates: " + availableUpdates.join(', '));
+        var requiredUpdates = availableUpdates.subtract(installedUpdates);
+        this.debug("Database update info retrieved, total " + availableUpdates.length + 
+                   " updates found, " + requiredUpdates.length + " updates will be installed: " +
+                   requiredUpdates.join(', '));
+        if (requiredUpdates.length > 0)
+          this.installUpdate(updates.first('id', requiredUpdates[0]));
+        else if (this.updated === true && isFunction(this.updatesCallback))
+          this.updatesCallback();
+      } catch (ex) {
+        this.error("Exception during processing database update information:");
+        this.logException(ex);
+      }
+    }
+  , installUpdate: function (updateInfo) {
+      this.debug("Retrieving update id " + updateInfo.id + " for database " + this.name);
+      try {
+        new iQue.DB.RemoteObject({
+          server: updateInfo.server
+        , url: updateInfo.dataUrl
+        , callback: this.mergeUpdate.curry(updateInfo)
+        , scope: this
+        });
+        return true;
+      } catch (ex) {
+        this.error("Exception during retrieving update id " + updateInfo.id + ":");
+        this.logException(ex);
+        return false;
+      }
+    }
+  , mergeUpdate: function (updateInfo, update) {
+      if (isUndefined(update))
+        return this.error("Can't find remote update " + updateInfo.dataUrl + " for database " + this.name);
+      this.debug("Update id " + updateInfo.id + " downloaded, processing...");
+      this.db.execute("BEGIN TRANSACTION");
+      try {
+        var options = update.options || { };
+        var ids = options.ids || { };
+        var data, query, cols, vals, u;
+        // Processing inserts
+        if (isObject(data = update.insert)) {
+          if (!isObject(data)) {
+            this.warning("INSERT field in database update has a wrong format");
+          } else {
+            Object.each(data, function (table, rows) {
+              if (!isArray(rows) || !isString(table))
+                return this.warning("INSERT field for table " + table + "in database update has a wrong format");
+              rows.each(function (row, idx) {
+                cols = [ ];
+                vals = [ ];
+                if (!isObject(row)) 
+                  return this.warning(
+                    "INSERT field for row #" + idx + " in table " + table + 
+                    " in database update has a wrong format"
+                  );
+                Object.each(row, function (c, v) {
+                  cols.push("'" + c.escapeSQL() + "'");
+                  vals.push(this.my.makeSQLValue(v));
+                }, this);
+                try {
+                  this.db.execute(
+                    "INSERT INTO '" + table.escapeSQL() + "' (" + 
+                    cols.join(",") + ") VALUES (" + 
+                    vals.join(",") + ")"
+                  );
+                } catch (ex) {
+                  throw "Error executing SQL command during database update";
+                }
+              }, this);
+            }, this);
+          }
+        }
+        if (isObject(data = update.update)) {
+          if (!isObject(data)) {
+            this.warning("UPDATE field in database update has a wrong format");
+          } else {
+            Object.each(data, function (table, rows) {
+              if (!isObject(rows) || !isString(table))
+                return this.warning("UPDATE field for table " + table + "in database update has a wrong format");
+              Object.each(rows, function (id, row){
+                u = [ ];
+                id = options.numericIds ? parseInt(id) : this.my.makeSQLValue(id);
+                if (!isObject(row)) 
+                  return this.warning(
+                    "UPDATE field for row id " + id + " in table " + table + 
+                    " in database update has a wrong format"
+                  );
+                Object.each(row, function (c, v) {
+                  u.push("'" + c.escapeSQL() + "' = " + this.my.makeSQLValue(v));
+                }, this);
+                try {
+                  this.db.execute(
+                    sql = "UPDATE '" + table.escapeSQL() + 
+                    "' SET " + u.join(',') + 
+                    " WHERE " + ids[table] + " = " + id
+                  );
+                } catch (ex) {
+                  throw "Error executing SQL command during database update";
+                }
+              }, this);
+            }, this);
+          }
+        }
+        if (isObject(data = update['delete'])) {
+          if (!isObject(data)) {
+            this.warning("DELETE field in database update has a wrong format");
+          } else {
+            Object.each(data, function (table, rows) {
+              if (!isArray(rows) || !isString(table))
+                return this.warning("DELETE field for table " + table + "in database update has a wrong format");
+              rows.each(function (id) {
+                id = options.numericIds ? parseInt(id) : this.my.makeSQLValue(id);
+                try {
+                  this.db.execute(
+                    sql = "DELETE FROM '" + table.escapeSQL() + 
+                    "' WHERE " + ids[table] + "=" + id
+                  );
+                } catch (ex) {
+                  throw "Error executing SQL command during database update";
+                }
+              }, this);
+            }, this);
+          }
+        }
+        this.db.execute("END TRANSACTION");
+        
+        var installedUpdates = iQue.DB.PropertiesStore.getArray(this.my.PROPERTYSTORE_UPDATES.format(this.name));
+        installedUpdates.push(updateInfo.id);
+        iQue.DB.PropertiesStore.setArray(this.my.PROPERTYSTORE_UPDATES.format(this.name), installedUpdates);
+        this.info("Update id " + updateInfo.id + " has been successfully applied to the " + this.name + " database");
+        this.updated = true;
+        this.checkUpdates();
+      } catch (ex) {
+        this.db.execute("ROLLBACK TRANSACTION");
+        this.error("Exception during processing database update id " + updateInfo.id + ":");
+        this.logException(ex);
+      }
+    }
 
   , __constructSQLQuery: function (table, fields, where, opts) {
       var query = [ ];
@@ -200,6 +375,36 @@ Class('iQue.DB.SqlStore', {
         val = "" + val + "";
 
       return val;
+    }
+  }
+  
+, my: {
+    have: {
+      PROPERTYSTORE_UPDATES: '$ique.database.update.%s'
+    }
+  , methods: {
+      makeSQLValue: function (val) {
+        if (isString(val))
+          return "'" + val.escapeSQL() + "'";
+        else if (isBoolean(val))
+          return val ? "TRUE" : "FALSE";
+        else if (val === null || isUndefined(val))
+          return "NULL";
+        else if (isNumber(val))
+          return val;
+        else {
+          try {
+            val = JSON.stringify(val);
+          } catch (ex) {
+            try {
+              val = val.toString();
+            } catch (ex) {
+              val = "''";
+            }
+          }
+          return "'" + val.escapeSQL() + "'";
+        }
+      }
     }
   }
 });
