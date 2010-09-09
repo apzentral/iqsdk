@@ -28,6 +28,8 @@ iQue = {
     }
   }
 , openWebSite: function (url) {
+    if (!url.startsWith('http://') && !url.startsWith('https://'))
+      url = 'http://' + url;
     Ti.Platform.openURL(url);
   }
 , openAppStore: function (url) {
