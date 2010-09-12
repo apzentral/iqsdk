@@ -1,6 +1,6 @@
 Class('iQue.UI.Control', {
   has: {
-    parent: { is: 'ro', required: false, init: null }
+    parent: { is: 'rw', required: false, init: null }
   , controls: { is: 'ro', required: false, init: null }
   , origConfig: { is: 'ro', required: false, init: { } }
   , origParams: { is: 'ro', required: false, init: { } }

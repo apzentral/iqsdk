@@ -53,6 +53,7 @@ Class('iQue.UI.View', {
       for (var i = 0; i < arguments.length; i++) {
         var view = arguments[i];
         if (!view) continue;
+        //view.parent = null;
         var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
         delete this.components[name];
         this.doRemove(view, i);

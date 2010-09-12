@@ -312,7 +312,7 @@ Class('iQue.DB.SqlStore', {
                 return v;
               }, this).compact().join(',') + ")";
             } else if (val === null || val === undefined) {
-              val = "IS NULL";
+              val = " IS NULL";
             } else if (isString(val)) {
               val = "= " + val;
             } else if (isObject(val)) {

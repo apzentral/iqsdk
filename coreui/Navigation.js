@@ -27,7 +27,7 @@ Class('iQue.UI.Navigation', {
   
 , methods: {
     open: function (win) {
-      return this.tiCtrl.open(win.tiCtrl || win);
+      return this.tiCtrl.open(win ? (win.tiCtrl || win) : this.window);
     }
   }
 });

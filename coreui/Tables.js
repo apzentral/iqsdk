@@ -87,7 +87,11 @@ Class('iQue.UI.GroupedView', {
   }
 
 , override: {
-    renderRows: function () {
+    refresh: function () {
+      this.data = null;
+      this.tiCtrl.setData(this.renderSections().pluck('tiCtrl'));
+    }
+  , renderRows: function () {
       this.debug("Rendering rows...");
       this.getData().rows.each(this.renderRow, this);
     }
@@ -106,7 +110,7 @@ Class('iQue.UI.GroupedView', {
   }
 
 , methods: {
-    renderSections: function (item) {
+    renderSections: function () {
       this.debug("Rendering sections...");
       return this.getData().sections.collect(this.renderSection, this).pluck('tiCtrl');
     }
@@ -117,11 +121,10 @@ Class('iQue.UI.GroupedView', {
       this.debug("Rendering section " + item.name + " of class " + className);
       section = new iQue.UI.TableView.Section(item, apply({ parent: this }, sectionConfig), className);
       this.sections[item.name] = section;
-      // this.appendSection(section);
       return section;
     }
   , appendSection: function (section) {
-      // this.add(section);
+      this.add(section);
     }
   }
 });

@@ -20,7 +20,7 @@ Class('iQue.UI.Window', {
       var tbconf = this.origConfig.toolbar;
       this.toolbar = { };
       tbconf && this.tiCtrl.setToolbar(tbconf.collect(function (item, idx) {
-        if (item == '<=>') 
+        if (item == '<=>')
           return Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE });
         var constructor = item.builder;
         if (!isFunction(constructor))
