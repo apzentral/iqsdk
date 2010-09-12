@@ -41,6 +41,19 @@ Class('iQue.UI.ToolBar', {
     tiClass: 'Toolbar'
   , tiFactory: Ti.UI.createToolbar
   }
+  
+, before: {
+    render: function () {
+      this.origConfig.components = (this.origConfig.components || [ ]).collect(function (item) {
+        if (item == '<=>') 
+          return {
+            builder: iQue.UI.Button
+          , config: { systemButton: Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE }
+          };
+        return item;
+      });
+    }
+  }
 });
 
 
