@@ -108,7 +108,7 @@ Class('iQue.UI.Control', {
    * Construct, render and listen routines
    */
   , construct: function () {
-      this.debug("Constructing component...");
+      this.debug("Constructing component %s...".format(this.iqueName()));
 
       var cfg = apply({ }, this.origConfig.config);
 
@@ -140,7 +140,7 @@ Class('iQue.UI.Control', {
       return true;
     }
   , listen: function () {
-      this.debug("Attaching event listeners...");
+      this.debug("Attaching event listeners for %s...".format(this.iqueName()));
       var listeners = this.origConfig.listeners = this.origConfig.listeners || { };
       for (var event in listeners) {
         (function () {
@@ -175,7 +175,7 @@ Class('iQue.UI.Control', {
       return true;
     }
   , render: function () {
-      this.debug("Rendering control...");
+      this.debug("Rendering component %s...".format(this.iqueName()));
       this.controls = { };
       this.origConfig.controls = this.origConfig.controls || [ ];
       this.origConfig.controls.each(function (item, idx) {
@@ -234,6 +234,10 @@ Class('iQue.UI.Control', {
   /*
    * iQuePath functions
    */
+  , iqueName: function () {
+      return this.origConfig.name || '<noname>';
+    }
+   
   , iquePath: function (route) {
       try {
         this.debug("Processing iQue path expression " + route);
