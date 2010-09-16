@@ -2,8 +2,8 @@ Class('iQue.UI.Split', {
   isa: iQue.UI.Window
 
 , has: {
-    masterView: { is: 'ro', required: false, init: null }
-  , detailView: { is: 'ro', required: false, init: null }
+    masterView: { is: 'ro', required: false }
+  , detailView: { is: 'ro', required: false }
   }
 
 , have: {
@@ -39,11 +39,24 @@ Class('iQue.UI.Split', {
       this.debug("Split view rendered");
       return true;
     }
+    
+  , listen: function () {
+      this.on('visible', this.onOrientationChange, this);
+    }
   }
 
 , methods: {
     openWindow: function (win, loc) {
       this[loc == 'detail' ? 'detailView' : 'masterView'].open(win);
+    }
+    
+  , onOrientationChange: function (ev) {
+      if (ev.view == 'detail') {
+        ev.button.title = iQue.i18n(this.origConfig.popoverButton.title);
+        this.detailView.window.tiCtrl.leftNavButton = ev.button;
+      } else if (ev.view == 'master') {
+        this.detailView.window.tiCtrl.leftNavButton = null;
+      }
     }
   }
 });
