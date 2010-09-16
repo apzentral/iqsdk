@@ -49,6 +49,9 @@ Class('iQue.UI.Window', {
     open: function () {
       this.tiCtrl.open(); 
     }
+  , close: function () {
+      this.tiCtrl.close();
+    }
   , getName: function () {
       return this.origConfig.name;
     }
