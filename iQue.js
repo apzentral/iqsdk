@@ -69,6 +69,20 @@ iQue = {
     Ti.Contacts.save();
     return person;
   }
+  
+, on: function (obj, event, fn, scope) {
+    obj.addEventListener(event, fn.bind(scope || this));
+  }
+  
+, isPortrait: function (orient) {
+    orient = orient || Titanium.UI.orientation;
+    return orient == Titanium.UI.PORTRAIT 
+        || orient == Titanium.UI.UPSIDE_PORTRAIT;
+  }
+  
+, isLandscape: function () {
+    return !iQue.isPortrait();
+  }
 };
 
 include('lib/ique/roles/Analytics.js');
