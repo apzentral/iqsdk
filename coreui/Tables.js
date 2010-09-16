@@ -3,9 +3,7 @@ Class('iQue.UI.TableView', {
   
 , has: {
     rows: { is: 'ro', required: false, init: null }
-  , data: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: { } }
-  , dataSource: { is: 'ro', required: false, init: null }
   }
   
 , have: {
@@ -37,14 +35,7 @@ Class('iQue.UI.TableView', {
   }
 
 , methods: {
-    getData: function () {
-      if (!this.data && this.dataSource)
-        this.data = isFunction(this.dataSource) ? this.dataSource() : this.dataSource;
-      else
-        this.data = this.data || [ ];
-      return this.data;
-    }
-  , refresh: function () {
+    refresh: function () {
       this.tiCtrl.setData([ ]);
       this.data = null;
       this.renderRows();
@@ -134,9 +125,9 @@ Class('iQue.UI.TableView.Section', {
 
 , has: {
     sectionClass: { is: 'ro', required: true, init: 'default' }
-  , data: { is: 'ro', required: true, init: { } }
   , mapping: { is: 'ro', required: true, init: { } }
   , layout: { is: 'ro', required: true, init: null }
+  , view: { is: 'ro', required: false }
   }
   
 , have: {
@@ -177,22 +168,25 @@ Class('iQue.UI.TableView.Section', {
     }
   , render: function () {
       var layout = this.layout;
-      var mapping = this.mapping;
-      layout && layout.each(function (item) {
+      var mapping = this.mapping || { };
+      if (!layout)
+        return true;
+      if (this.origConfig.wrap)
+        this.view = Ti.UI.createView({ height: 'auto' });
+      layout.each(function (item) {
         var param = { };
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
-          var val = this.data[mi.field];
-          if (val === undefined)
-            val = iQue.i18n(mi['default']);
-          if (isString(mi.format))
-            val = mi.format.format(val);
-          else if (isFunction(mi.format))
-            val = mi.format(val);
-          param[mi.attribute] = val;
+          param[mi.attribute] = this.convertDataValue(this.data[mi.field], mi.format, mi['default']);
         }, this);
-        this.add(this.components[item.name] = item.builder(apply(param, item.config)));
+        var component = this.components[item.name] = item.builder(apply(param, item.config));
+        if (this.origConfig.wrap)
+          this.view.add(component);
+        else
+          this.tiCtrl.add(component);
       }, this);
+      if (this.origConfig.wrap)
+        this.tiCtrl.add(this.view);
       return true;
     }
   }
