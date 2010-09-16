@@ -30,7 +30,12 @@ Class('iQue.UI.OptionDialog', {
   }
   
 , methods: {
-    show: function () { this.tiCtrl.show(); }
+    show: function (opts) {
+      if (opts && opts.view)
+        opts.view = opts.view.tiCtrl || opts.view;
+      this.tiCtrl.show(opts);
+    }
+  , hide: function () { this.tiCtrl.hide(); }
   }
 });
 
@@ -101,7 +106,11 @@ Class('iQue.UI.AlertDialog', {
   }
 
 , methods: {
-    show: function () { this.tiCtrl.show(); }
+    show: function (opts) {
+      if (opts && opts.view)
+        opts.view = opts.view.tiCtrl || opts.view;
+      this.tiCtrl.show(opts);
+    }
   , hide: function () { this.tiCtrl.hide(); }
   }
 });
