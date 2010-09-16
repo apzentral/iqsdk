@@ -12,7 +12,10 @@ Class('iQue.UI.Navigation', {
 
 , before: {
     construct: function () {
-      this.origConfig.config.window = (this.window = iQue.buildComponent(this.origConfig.view)).tiCtrl;
+      var viewCfg = apply({ }, this.origConfig.view);
+      viewCfg.parent = this;
+      this.window = iQue.buildComponent(viewCfg);
+      this.origConfig.config.window = this.window.tiCtrl;
       return true;
     }
   }
