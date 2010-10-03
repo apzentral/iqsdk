@@ -1,4 +1,4 @@
-iQue Ultra-rapid Application Development Framework for Appcelerator Titanium* Platform
+iQ SDK: a platform for ultra-rapid mobile application development with Appcelerator Titanium*
 ============
 © 2010 Dev-iQue, LLC. All rights reserved
 _Author_: Maxim A. Orlovsky
