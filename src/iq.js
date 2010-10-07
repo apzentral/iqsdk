@@ -11,25 +11,26 @@ namespace('Layouts');
 apply(iQ, {
   include: Ti.include
 
-, includeDir: function (dir) {
+, includeDir: function (path) {
     var result = true;
-    debug("*** INCLUDING DIRECTORY %s".format(dir));
+    debug("*** INCLUDING DIRECTORY %s".format(path));
     try {
-      var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, dir);
+      var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
       if (!dir.exists()) {
-        error("Can find the path specified %s".format(dir));
+        error("Can find the path specified %s".format(path));
         return false;
       }
       dir.getDirectoryListing().each(function (file) {
         try {
           if (!file.endsWith('.js')) return;
           debug("Including file %s".format(file));
-          Ti.include(file);
+          Ti.include(path + '/' + file);
         } catch (ex) {
           error("Error including file %s".format(file));
         };
       });
     } catch (ex) {
+      error(ex);
       return false;
     }
     return result;
@@ -49,6 +50,7 @@ apply(iQ, {
       type: Boolean
     , descr: "true if all of the *.js files in the directory was successfully included, \
         false otherwise or in case of exception"
+    }
   })
   
 , buildComponent: function (
@@ -76,7 +78,9 @@ apply(iQ, {
      Creates main application object (TheApp) and loads all application resources
      (layouts, strings, themes, views, data models, databases, network interfaces etc)
      */
-     
+    
+    config.augment = config.augment || { };
+    config.augment.loadData = config.augment.loadData || function () { };
     apply(TheApp, new iQ.Application(config));
 
     iQ.include('i18n/' + TheApp.getLocale() + '.js');
@@ -87,7 +91,7 @@ apply(iQ, {
 
     iQ.include('layouts/layouts.js');
 
-    TheApp.start();
+    TheApp.start(Layouts.main);
   }
 
 , i18n: function (
@@ -104,7 +108,7 @@ apply(iQ, {
   ) {
     return (!str || str.charAt(0) != '%') 
            ? str 
-           : 'themes/' + $THEME_NAME + '/' + ($THEME[str.slice(1)] || '');
+           : 'themes/' + TheApp.getTheme() + '/' + ($THEME[str.slice(1)] || '');
   }
 
 , isPortrait: function (orient) {
@@ -116,14 +120,18 @@ apply(iQ, {
 , isLandscape: function () {
     return !iQ.isPortrait();
   }
-};
+  
+, iPad: function () {
+    return !!Ti.UI.iPad;
+  }
+});
 
 
-iQ.include('lib/iqcl/roles/roles.js');
 iQ.include('lib/iqcl/util.js');
+iQ.includeDir('lib/iqcl/roles/');
 
 iQ.include('lib/iqcl/Application.js');
 iQ.include('lib/iqcl/ui/ui.js');
 iQ.include('lib/iqcl/data/data.js');
 iQ.include('lib/iqcl/net/net.js');
-iQ.include('lib/iqcl/xml/xml.js');
+iQ.includeDir('lib/iqcl/xml/');

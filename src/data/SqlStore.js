@@ -334,7 +334,7 @@ Class('iQ.data.SqlStore', {
             query.push(a + val);
           } catch (ex) {
             this.error("Bad value supplied in WHERE part of SQL request; key=" + a + ", value=" + val);
-            this.error(ex);
+            this.logException(ex);
           }
         }
         query = " WHERE " + query.join(',');

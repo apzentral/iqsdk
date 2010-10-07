@@ -18,7 +18,7 @@ iQ.data.PropertiesStore = new (Class({
         return Ti.App.Properties.listProperties();
       } catch (ex) {
         this.error("Exception during retrieving key names for the key-value store; defaulting to the empty list");
-        this.error(ex);
+        this.logException(ex);
         return [ ];
       }
     }
@@ -28,7 +28,7 @@ iQ.data.PropertiesStore = new (Class({
         return Ti.App.Properties.getList(key, [ ]) || [ ];
       } catch (ex) {
         this.error("Exception during reading array key value from the store");
-        this.error(ex);
+        this.logException(ex);
         return [ ];
       }
     }
@@ -43,7 +43,7 @@ iQ.data.PropertiesStore = new (Class({
         Ti.App.Properties.setList(key, ary);
       } catch (ex) {
         this.error("Exception during saving array key value to the store");
-        this.error(ex);
+        this.logException(ex);
         return [ ];
       }
     }

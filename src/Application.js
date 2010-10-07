@@ -33,10 +33,10 @@ Class('iQ.Application', {
         var ext = { };
         'methods after before override augment'.split(' ').each(function (key) {
           if (!this.config[key]) return;
-          ext[key] = this.config[methods];
+          ext[key] = this.config[key];
           this.config[key] = undefined;
         }, this);
-        this.extend(ext);
+        this.meta.extend(ext);
       } catch (ex) {
         this.error("Failed to extend application with additional methods:");
         this.logException(ex);
@@ -46,8 +46,9 @@ Class('iQ.Application', {
       return true;
     }
 
-  , start: function () {
+  , start: function (layout) {
       var success = true;
+      this.layout = this.layout || layout;
       try {
         success = this.loadData() && this.loadLayout();
       } catch (ex) {
@@ -68,7 +69,7 @@ Class('iQ.Application', {
         this.INNER();
       } catch (ex) {
         this.error("Failed to load data, exception raised:");
-        this.error(ex);
+        this.logException(ex);
         return false;
       }
       return true;
@@ -85,7 +86,7 @@ Class('iQ.Application', {
         this.db = new iQ.data.SqlStore(dbName, dbPath, dbClear);
       } catch (ex) {
         this.error("Failed to load database, exception raised:");
-        this.error(ex);
+        this.logException(ex);
         this.db = null;
         return false;
       }
@@ -95,20 +96,19 @@ Class('iQ.Application', {
   , loadLayout: function () {
       this.debug("Loading application interface");
       try {
-        var layout = this.layout = ;
-        if (layout.type && isUndefined(layout.builder)) {
-          layout.builder = iQ.ui[{
+        if (this.layout.type && isUndefined(this.layout.builder)) {
+          this.layout.builder = iQ.ui[{
             split: 'Split',
             tabs: 'TabGroup',
             nav: 'Navigation',
             win: 'Window'
-          }[layout.type]];
+          }[this.layout.type]];
         }
         this.view = iQ.buildComponent(this.layout, { });
         this.view.open();
       } catch (ex) {
         this.error("Failed to load application interface, exception raised:");
-        this.error(ex);
+        this.logException(ex);
         this.view = null;
         return false;
       }
@@ -148,7 +148,7 @@ Class('iQ.Application', {
 
   , getTheme: function () {
       var themeConfig = this.config.themes;
-      if (isDefined(themeConfig['default']))
+      if (isDefined(themeConfig) && isDefined(themeConfig['default']))
         return themeConfig['default'];
       return 'default';
     }
@@ -161,6 +161,6 @@ Class('iQ.Application', {
     }
   , hasCustomLayout: function () {
       return this.layout.type != 'tabs' && this.layout.type != 'split';
-    }
-  }*/
+    }*/
+  }
 });

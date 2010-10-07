@@ -17,17 +17,13 @@ Class('iQ.ui.TabGroup', {
       this.tabs = { };
       this.windows = { };
       this.origConfig.tabs.each(function (cfg) {
-        var win = new cfg.window.builder(cfg.window);
-        var tab = Ti.UI.createTab({
-          name: cfg.name,
-          icon: iQ.theme(cfg.icon),
-          title: iQ.i18n(cfg.title),
-          window: win.getTiCtrl()
-        });
-        this.debug("Tab " + cfg.name + " created");
-        this.tiCtrl.addTab(tab);
-        this.tabs[cfg.name] = tab;
-        this.windows[cfg.name] = win;
+        try {
+          cfg.builder = iQ.ui.Tab;
+          this.addTab(iQ.buildComponent(cfg, this.origParams));
+        } catch (ex) {
+          this.error("Exception creating tab %s:".format(cfg ? cfg.name : cfg));
+          this.logException(ex);
+        }
       }, this);
       this.debug("Tabs rendered");
       return true;
@@ -36,8 +32,7 @@ Class('iQ.ui.TabGroup', {
 
 , override: {
     uiAxis: function (item) {
-      if (item.startsWith('@')) return this.windows;
-      else if (item.startsWith('*')) return this.tabs;
+      if (item.startsWith('@')) return this.tabs;
       else return this.SUPER(item);
     }
   }
@@ -46,6 +41,48 @@ Class('iQ.ui.TabGroup', {
     open: function () {
       this.tiCtrl.open();
     }
+    
+  , addTab: function (tab) {
+      for (var i = 0; i < arguments.length; i++) {
+        var view = arguments[i];
+        if (!view) continue;
+        var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.tabs).length;
+        view.parent = this;
+        this.tabs[name] = view;
+        try {
+          this.tiCtrl.addTab(view.tiCtrl || view);
+        } catch (ex) {
+          this.error("Error during adding tiCtrl to the TabGroup:");
+          this.logException(ex);
+        }
+      }
+      return this;
+    }
+
+  , removeTab: function () {
+      for (var i = 0; i < arguments.length; i++) {
+        var view = arguments[i];
+        if (!view) continue;
+        var name = view.origConfig.name;
+        var tab = this.tabs[name];
+        if (!tab || tab != view)
+          tab = this.tabs[this.tabs.indexOf(tab)];
+        if (!tab) {
+          this.error("Can't remove tab %s: not found in the tab group".format(view.name));
+        } else {
+          view.parent = null;
+          delete this.tabs[name];
+        }
+        try {
+          this.tiCtrl.removeTab(view.tiCtrl || view);
+        } catch (ex) {
+          this.error("Error during removing tiCtrl from TabGroup:");
+          this.logException(ex);
+        }
+      }
+      return this;
+    }
+
   , getActiveWindow: function () {
       return this.windows[this.getActiveTab().name];
     }
@@ -54,6 +91,50 @@ Class('iQ.ui.TabGroup', {
     }
   , setActiveTab: function (idx) {
       return this.tiCtrl.setActiveTab(idx);
+    }
+  }
+});
+
+Class('iQ.ui.Tab', {
+  isa: iQ.ui.View
+  
+, has: {
+    view: { is: 'ro', required: false, init: null }
+  }
+  
+, have: {
+    tiClass: 'Tab'
+  , tiFactory: Ti.UI.createTab
+  }
+
+, before: {
+    construct: function () {
+      try {
+        var cfg = this.origConfig.config;
+        this.info("Rendering view for a tab %s".format(cfg.name));
+        var viewCfg = this.origConfig.view || { };
+        viewCfg.name = viewCfg.name || cfg.name;
+        viewCfg.builder = viewCfg.builder || iQ.ui.Window;
+        this.view = iQ.buildComponent(viewCfg);
+        cfg.window = this.view.tiCtrl;
+      } catch (ex) {
+        this.error("Error rendering tab view:");
+        this.logException(ex);
+      };
+    }
+  }
+
+, after: {
+    initStrings: function () {
+      this.__i18nStrings.push('title', 'badge');
+      this.__themeStrings.push('icon');
+    }
+  }
+  
+, override: {
+    uiAxis: function (item) {
+      if (!item.startsWith('^')) return this.view;
+      else return this.SUPER(item);
     }
   }
 });

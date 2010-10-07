@@ -1,8 +1,6 @@
 Class('iQ.ui.View', {
   isa: iQ.ui.Component
   
-, does: iQ.role.Components
-  
 , has: {
     data: { is: 'ro', required: false }
   , dataSource: { is: 'ro', required: false, init: null }
@@ -39,7 +37,7 @@ Class('iQ.ui.View', {
           this.add(iQ.buildComponent(param, this.origParams));
         } catch (ex) {
           this.error("Exception during component build process:");
-          this.error(ex);
+          this.logException(ex);
         }
       }, this);
       return true;
@@ -62,11 +60,51 @@ Class('iQ.ui.View', {
       return this.data;
     }
 
+  , add: function () {
+      for (var i = 0; i < arguments.length; i++) {
+        var view = arguments[i];
+        if (!view) continue;
+        var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
+        view.parent = this;
+        this.components[name] = view;
+        this.doAdd(view, i);
+      }
+      return this;
+    }
+  , remove: function () {
+      for (var i = 0; i < arguments.length; i++) {
+        var view = arguments[i];
+        if (!view) continue;
+        var name = view.origConfig.name;
+        var ctrl = this.components[name];
+        if (!ctrl || ctrl != view)
+          ctrl = this.components[this.components.indexOf(ctrl)];
+        if (!ctrl) {
+          this.error("Can't remove component %s: not found".format(view.name));
+        } else {
+          view.parent = null;
+          delete this.components[name];
+        }
+        this.doRemove(view, i);
+      }
+      return this;
+    }
+
   , doAdd: function (view, idx) {
-      this.tiCtrl.add(view.tiCtrl || view);
+      try {
+        this.tiCtrl.add(view.tiCtrl || view);
+      } catch (ex) {
+        this.error("Error during adding tiCtrl:");
+        this.logException(ex);
+      }
     }
   , doRemove: function (view, idx) {
-      this.tiCtrl.remove(view.tiCtrl || view);
+      try {
+        this.tiCtrl.remove(view.tiCtrl || view);
+      } catch (ex) {
+        this.error("Error during removing tiCtrl:");
+        this.logException(ex);
+      }
     }
     
   , convertDataValue: function (val, format, dflt) {

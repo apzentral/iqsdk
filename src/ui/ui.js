@@ -1,17 +1,22 @@
 
-include('lib/iqcl/ui/Control.js');
-include('lib/iqcl/ui/BasicControls.js');
-include('lib/iqcl/ui/FormControls.js');
+namespace('iQ.ui');
 
-include('lib/iqcl/ui/Dialogs.js');
+iQ.include('lib/iqcl/ui/Component.js');
+iQ.include('lib/iqcl/ui/BasicControls.js');
+iQ.include('lib/iqcl/ui/FormControls.js');
 
-include('lib/iqcl/ui/View.js');
-include('lib/iqcl/ui/BasicViews.js');
-include('lib/iqcl/ui/BarViews.js');
-include('lib/iqcl/ui/Maps.js');
-include('lib/iqcl/ui/Tables.js');
+iQ.include('lib/iqcl/ui/Dialogs.js');
 
-include('lib/iqcl/ui/Window.js');
-include('lib/iqcl/ui/Tabs.js');
-include('lib/iqcl/ui/Navigation.js');
-include('lib/iqcl/ui/Split.js');
+iQ.include('lib/iqcl/ui/View.js');
+iQ.include('lib/iqcl/ui/BasicViews.js');
+iQ.include('lib/iqcl/ui/BarViews.js');
+iQ.include('lib/iqcl/ui/Maps.js');
+iQ.include('lib/iqcl/ui/Tables.js');
+
+iQ.include('lib/iqcl/ui/Window.js');
+iQ.include('lib/iqcl/ui/Tabs.js');
+iQ.include('lib/iqcl/ui/Navigation.js');
+
+if(iQ.iPad()) {
+  iQ.include('lib/iqcl/ui/Split.js');
+}

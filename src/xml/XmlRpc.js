@@ -17,7 +17,7 @@ Class('iQ.XmlRpc.Client', {
         path: path,
         port: port,
         ssl: ssl,
-        httpClient: HTTP.createClient(server, port, ssl);
+        httpClient: HTTP.createClient(server, port, ssl)
       };
     }
     

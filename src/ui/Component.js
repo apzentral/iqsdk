@@ -30,7 +30,7 @@ Class('iQ.ui.Component', {
         }
       } catch (ex) {
         this.error("Exception during control construction:");
-        this.error(ex);
+        this.logException(ex);
         return false;
       }
 
@@ -42,7 +42,7 @@ Class('iQ.ui.Component', {
         }
       } catch (ex) {
         this.error("Exception during control construction:");
-        this.error(ex);
+        this.logException(ex);
         return false;
       }
 
@@ -54,7 +54,7 @@ Class('iQ.ui.Component', {
         }
       } catch (ex) {
         this.error("Exception during control construction:");
-        this.error(ex);
+        this.logException(ex);
         return false;
       }
 
@@ -166,7 +166,7 @@ Class('iQ.ui.Component', {
               fn.apply(scope, arguments);
             } catch (ex) {
               this.error("Late event binding failed because of exception:");
-              this.error(ex);
+              this.logException(ex);
             }
           }
           this.on(event, _lateBinder, this);
@@ -180,19 +180,26 @@ Class('iQ.ui.Component', {
       this.origConfig.controls = this.origConfig.controls || [ ];
       this.origConfig.controls.each(function (item, idx) {
         this.debug("Building " + item.name);
-        var constructor = item.builder;
-        if (!isFunction(constructor))
-          return this.error("Component " + item.name + " does not supply proper constructor");
         try {
-          var ctrl = new constructor(apply({ parent: this }, item));
-          this.controls[item.name || idx] = ctrl;
-          this.tiCtrl[item.location] = ctrl.tiCtrl;
+          this.setControl(item.location, iQ.buildComponent(item));
         } catch (ex) {
           this.error("Exception during component build process:");
-          this.error(ex);
+          this.logException(ex);
         }
       }, this);
       return true;
+    }
+
+  , setControl: function (location, ctrl) {
+      try {
+        ctrl.parent = this;
+        this.controls[ctrl.origConfig.name || Object.numericKeys(this.controls).length] = ctrl;
+        this.tiCtrl[location] = ctrl.tiCtrl || ctrl;
+      } catch (ex) {
+        this.error("Error setting control %s for location %s:".format(ctrl.origConfig.name, location));
+        this.logException(ex);
+      }
+      return this;
     }
 
   /*
@@ -268,7 +275,11 @@ Class('iQ.ui.Component', {
         return this;
       }
     }
-    
+/*  , uiResolve: function (routeStep) {
+      var obj = this;
+      if (isFunction(obj.uiAxis)) obj = obj.uiAxis.call(obj, item);
+      
+    }*/
   , uiAxis: function (item) {
       if (item == '/') return TheApp;
       if (item == '^') return this.parent;
