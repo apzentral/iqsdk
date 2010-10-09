@@ -9,7 +9,7 @@ Class('iQ.ui.ButtonBar', {
 
 , after: {
     initStrings: function () {
-      this.__i18nStrings.push('labels');
+      //this.__i18nStrings.push('labels');
     }
   }
 });

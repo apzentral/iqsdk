@@ -13,7 +13,7 @@ iQ.util = {
     Ti.Platform.openURL(url);
   }
 , openAppStore: function (url) {
-    if (Ti.Platform.model == 'Simulator') {
+    if (iQ.isEmulator()) {
       alert('Opening iTunes for: ' + url);
     } else {
       Ti.Platform.openURL(url);

@@ -16,7 +16,7 @@ apply(iQ, {
     debug("*** INCLUDING DIRECTORY %s".format(path));
     try {
       var dir = Ti.Filesystem.getFile(Ti.Filesystem.resourcesDirectory, path);
-      if (!dir.exists()) {
+      if (!dir.exists() && iQ.isEmulator()) {
         error("Can find the path specified %s".format(path));
         return false;
       }
@@ -86,9 +86,6 @@ apply(iQ, {
     iQ.include('i18n/' + TheApp.getLocale() + '.js');
     iQ.include('themes/' + TheApp.getTheme() + '.js');
 
-    iQ.includeDir('views');
-    iQ.includeDir('model');
-
     iQ.include('layouts/layouts.js');
 
     TheApp.start(Layouts.main);
@@ -120,7 +117,11 @@ apply(iQ, {
 , isLandscape: function () {
     return !iQ.isPortrait();
   }
-  
+
+, isEmulator: function () {
+    return Ti.Platform.model == 'Simulator';
+  }
+
 , iPad: function () {
     return !!Ti.UI.iPad;
   }
@@ -128,10 +129,10 @@ apply(iQ, {
 
 
 iQ.include('lib/iqcl/util.js');
-iQ.includeDir('lib/iqcl/roles/');
+iQ.include('lib/iqcl/roles/roles.js');
 
 iQ.include('lib/iqcl/Application.js');
 iQ.include('lib/iqcl/ui/ui.js');
 iQ.include('lib/iqcl/data/data.js');
 iQ.include('lib/iqcl/net/net.js');
-iQ.includeDir('lib/iqcl/xml/');
+iQ.include('lib/iqcl/xml/xml.js');

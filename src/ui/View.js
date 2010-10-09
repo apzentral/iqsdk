@@ -108,11 +108,13 @@ Class('iQ.ui.View', {
     }
     
   , convertDataValue: function (val, format, dflt) {
-      format && (format = isFunction(format) ? format : format.format);
       if (val === undefined)
         val = dflt;
+      if (!format) return val;
       if (isFunction(format))
         val = format(val);
+      else if (isFunction(format.format))
+        val = format.format(val);
       return val;
     }
   }

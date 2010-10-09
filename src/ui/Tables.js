@@ -43,10 +43,11 @@ Class('iQ.ui.TableView', {
   , renderRows: function () {
       this.getData().each(this.renderRow, this);
     }
-  , renderRow: function (item) {
+  , renderRow: function (item, idx) {
       var className = item.className || 'default';
       var rowConfig = this.origConfig.rowClasses[className];
       this.debug("Rendering row of class " + className);
+      item.rowIndex = idx;
       var row = new iQ.ui.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
       this.rows[item.name] = row;
@@ -69,11 +70,11 @@ Class('iQ.ui.GroupedView', {
 , before: {
     construct: function () {
       this.sections = { };
-      this.origConfig.dynamic = this.origConfig.dynamic || [ ];
-      this.origConfig.dynamic.push({
-        attribute: 'data'
-      , generator: this.renderSections.bind(this)
-      });
+      this.origConfig.dynamic = this.origConfig.dynamic || { };
+      this.origConfig.dynamic.data = {
+        generator: this.renderSections
+      , scope: this
+      };
     }
   }
 
@@ -174,29 +175,22 @@ Class('iQ.ui.TableView.Section', {
       if (this.origConfig.wrap)
         this.view = Ti.UI.createView({ height: 'auto' });
       layout.each(function (item) {
-        var param = { };
+        var params = { };
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
-          param[mi.attribute] = this.convertDataValue(this.data[mi.field], mi.format, mi['default']);
+          params[mi.attribute] = this.convertDataValue(this.data[mi.field], mi.format, mi['default']);
         }, this);
-        var component = this.components[item.name] = item.builder(apply(param, item.config));
+        item = apply({ parent: this }, item);
+        apply(item.config, params);
+        var component = this.components[item.name] = iQ.buildComponent(item);
         if (this.origConfig.wrap)
           this.view.add(component);
         else
-          this.tiCtrl.add(component);
+          this.add(component);
       }, this);
       if (this.origConfig.wrap)
-        this.tiCtrl.add(this.view);
+        this.add(this.view);
       return true;
-    }
-  }
-
-, methods: {
-    appendRow: function (row) {
-      return this.tiCtrl.add(row.tiCtrl || row);
-    }
-  , deleteRow: function (row) {
-      return this.tiCtrl.remove(row.tiCtrl || row);
     }
   }
 });

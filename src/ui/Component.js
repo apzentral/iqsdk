@@ -113,17 +113,18 @@ Class('iQ.ui.Component', {
       var cfg = apply({ }, this.origConfig.config);
 
       var dynamic = this.origConfig.dynamic;
-      isArray(dynamic) && dynamic.each (function (dytem) {
+      isObject(dynamic) && Object.each(dynamic, function (attribute, dytem) {
         try {
-          var generator = dytem.generator;
+          var generator = dytem.generator || dytem;
           var scope = dytem.scope;
           if (isString(scope)) scope = this.uiPath(scope);
           if (!isFunction(generator)) generator = this.uiPath(generator);
           if (!isFunction(generator))
-            cfg[dytem.attribute] = this.preprocessAttribute(dytem.attribute, generator);
+            cfg[attribute] = this.preprocessAttribute(attribute, generator);
             //this.error("Attribute " + dytem.attribute + " have supplied wrong generator");
-          else
-            cfg[dytem.attribute] = this.preprocessAttribute(dytem.attribute, generator.call(scope || this, this));
+          else {
+            cfg[attribute] = this.preprocessAttribute(attribute, generator.call(scope || this, this));
+          }
         } catch (ex) {
           this.error("Error generating dynamic attribute " + dytem.attribute);
           this.logException(ex);
@@ -141,47 +142,48 @@ Class('iQ.ui.Component', {
     }
   , listen: function () {
       this.debug("Attaching event listeners for %s...".format(this.uiName()));
-      var listeners = this.origConfig.listeners = this.origConfig.listeners || { };
-      for (var event in listeners) {
-        (function () {
-          var li = listeners[event];
-          var fn = li.handler || li;
-          var scope = li.scope || this;
-          var called = false;
-          function _lateBinder () {
-            this.debug("Executing late event binding...");
-            try {
-              //if (called) return;
-              if (!isFunction(fn))
-                fn = this.uiPath(fn);
-              if (isString(scope))
-                scope = this.uiPath(scope);
-              if (!isFunction(fn)) {
-                this.error("Bad listener " + fn + " for " + event + " event");
-                continue;
-              }
-              //this.un(event, _lateBinder);
-              //this.on(event, fn, scope);
-              //called = true;
-              fn.apply(scope, arguments);
-            } catch (ex) {
-              this.error("Late event binding failed because of exception:");
-              this.logException(ex);
+      var listeners = this.origConfig.listeners;
+      isObject(listeners) && Object.each(listeners, function (event, li) {
+        if (!li) {
+          this.error("Component %s provides no handler for %s event".format(this.uiName(), event));
+          return;
+        }
+        var fn = li.handler || li;
+        var scope = li.scope || this;
+        var called = false;
+        function _lateBinder () {
+          this.debug("Executing late event binding...");
+          try {
+            //if (called) return;
+            if (!isFunction(fn))
+              fn = this.uiPath(fn);
+            if (isString(scope))
+              scope = this.uiPath(scope);
+            if (!isFunction(fn)) {
+              this.error("Bad listener " + fn + " for " + event + " event");
+              continue;
             }
+            //this.un(event, _lateBinder);
+            //this.on(event, fn, scope);
+            //called = true;
+            fn.apply(scope, arguments);
+          } catch (ex) {
+            this.error("Late event binding failed because of exception:");
+            this.logException(ex);
           }
-          this.on(event, _lateBinder, this);
-        }).call(this);
-      }
+        }
+        this.on(event, _lateBinder, this);
+      }, this);
       return true;
     }
   , render: function () {
       this.debug("Rendering component %s...".format(this.uiName()));
       this.controls = { };
-      this.origConfig.controls = this.origConfig.controls || [ ];
-      this.origConfig.controls.each(function (item, idx) {
+      this.origConfig.controls = this.origConfig.controls || { };
+      Object.each(this.origConfig.controls, function (location, item) {
         this.debug("Building " + item.name);
         try {
-          this.setControl(item.location, iQ.buildComponent(item));
+          this.setControl(location, iQ.buildComponent(item));
         } catch (ex) {
           this.error("Exception during component build process:");
           this.logException(ex);

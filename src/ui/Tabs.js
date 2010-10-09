@@ -111,8 +111,7 @@ Class('iQ.ui.Tab', {
     construct: function () {
       try {
         var cfg = this.origConfig.config;
-        this.info("Rendering view for a tab %s".format(cfg.name));
-        var viewCfg = this.origConfig.view || { };
+        var viewCfg = this.origConfig.window || { };
         viewCfg.name = viewCfg.name || cfg.name;
         viewCfg.builder = viewCfg.builder || iQ.ui.Window;
         this.view = iQ.buildComponent(viewCfg);
@@ -135,6 +134,12 @@ Class('iQ.ui.Tab', {
     uiAxis: function (item) {
       if (!item.startsWith('^')) return this.view;
       else return this.SUPER(item);
+    }
+  }
+  
+, methods: {
+    open: function (win) {
+      return this.tiCtrl.open(win.tiCtrl || win);
     }
   }
 });
