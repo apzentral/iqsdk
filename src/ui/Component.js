@@ -210,7 +210,11 @@ Class('iQ.ui.Component', {
   , show: function () { this.tiCtrl.show(); return this; }
   , hide: function () { this.tiCtrl.hide(); return this; }
   , isVisible: function () { return this.tiCtrl.visible; }
-  , animate: function (anim, cb) { this.tiCtrl.animate(anim, cb); return this; }
+  , animate: function (anim, cb) { 
+      if (anim && anim.view)
+        anim.view = anim.view.tiCtrl || anim.view;
+      this.tiCtrl.animate(anim, cb); return this; 
+    }
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
   , getProperty: function (prop) { return this.tiCtrl[prop]; }
   , setProperty: function (prop, value) { this.tiCtrl[prop] = value; }
