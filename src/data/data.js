@@ -1,6 +1,10 @@
 
 namespace('iQ.data');
 
+include('lib/iqcl/data/DataSource.js');
+include('lib/iqcl/data/DataFilter.js');
+include('lib/iqcl/data/Record.js');
+
 include('lib/iqcl/data/RemoteObject.js');
 
 include('lib/iqcl/data/PropertiesStore.js');
