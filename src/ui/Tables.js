@@ -3,7 +3,8 @@ Class('iQ.ui.TableView', {
   
 , has: {
     rows: { is: 'ro', required: false, init: null }
-  , layouts: { is: 'ro', required: false, init: { } }
+  , layouts: { is: 'ro', required: false, init: null }
+  , paging: { is: 'ro', required: false }
   }
   
 , have: {
@@ -13,7 +14,8 @@ Class('iQ.ui.TableView', {
 
 , before: {
     initialize: function () {
-      this.dataSource = this.origConfig.dataSource;
+      this.paging = this.origConfig.paging || { };
+      this.paging.pagesOpened = 1;
     }
   , construct: function () {
       this.rows = { };
@@ -25,6 +27,10 @@ Class('iQ.ui.TableView', {
       this.renderRows();
       return true;
     }
+  , onDataAvailable: function () {
+      this.empty(false);
+      this.renderRows();
+    }
   }
 
 , override: {
@@ -35,13 +41,23 @@ Class('iQ.ui.TableView', {
   }
 
 , methods: {
-    refresh: function () {
+    empty: function (emptyData) {
       this.tiCtrl.setData([ ]);
-      this.data = null;
+      if (emptyData !== false)
+        this.data = null;
+    }
+  , refresh: function () {
+      this.empty();
       this.renderRows();
     }
-  , renderRows: function () {
-      this.getData().each(this.renderRow, this);
+  , renderRows: function (page) {
+      var data = this.getData().data;
+      var len = data.length;
+      if (this.paging.use)
+        data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);
+      data.each(this.renderRow, this);
+      //if (this.paging.use && len > this.paging.pageSize * this.paging.pagesOpened)
+      //  this.renderRow({ className: 'pager' });
     }
   , renderRow: function (item, idx) {
       var className = item.className || 'default';
@@ -154,10 +170,10 @@ Class('iQ.ui.TableView.Section', {
   , initConfig: function (config) {
       if (this.layout) return config;
       this.mapping.headerTitle && apply(config, {
-        headerTitle: this.data[this.mapping.headerTitle.field]
+        headerTitle: this.data.getValue(this.mapping.headerTitle.field || this.mapping.headerTitle)
       });
       this.mapping.footerTitle && apply(config, {
-        footerTitle: this.data[this.mapping.footerTitle.field]
+        footerTitle: this.data.getValue(this.mapping.footerTitle.field || this.mapping.footerTitle)
       });
       return config;
     }
@@ -178,7 +194,7 @@ Class('iQ.ui.TableView.Section', {
         var params = { };
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
-          params[mi.attribute] = this.convertDataValue(this.data[mi.field], mi.format, mi['default']);
+          params[mi.attribute] = this.convertDataValue(this.data.getValue(mi.field), mi.format, mi['default']);
         }, this);
         item = apply({ parent: this }, item);
         apply(item.config, params);
@@ -214,20 +230,22 @@ Class('iQ.ui.TableView.Row', {
       var o = this.SUPER(data, config, rowClass);
       apply(o.origConfig.config, {
         rowClass: rowClass
-      , iQData: data
+      , iQData: data.data
       });
       return apply(o, {
         data: data
       , rowClass: rowClass
       , layout: config.layout
-      , mapping: config.mapping 
+      , mapping: config.mapping || { }
       });
     }
   , initConfig: function (config) {
       if (this.layout) return config;
-      config.title = this.data[this.mapping.title.field];
-      if (this.mapping.leftImage) config.leftImage = this.data[this.mapping.leftImage.field];
-      if (this.mapping.rightImage) config.rightImage = this.data[this.mapping.rightImage.field];
+      config = apply({ }, config);
+      var m = this.mapping;
+      if (m.title) config.title = this.data.getValue(m.title.field || m.title);
+      if (m.leftImage) config.leftImage = this.data.getValue(m.leftImage.field || m.leftImage);
+      if (m.rightImage) config.rightImage = this.data.getValue(m.rightImage.field || m.rightImage);
       return config;
     }
   }  

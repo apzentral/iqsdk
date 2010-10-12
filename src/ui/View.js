@@ -3,7 +3,7 @@ Class('iQ.ui.View', {
   
 , has: {
     data: { is: 'ro', required: false }
-  , dataSource: { is: 'ro', required: false, init: null }
+  , dataSource: { is: 'rw', required: false, init: null }
   }
   
 , have: {
@@ -53,11 +53,33 @@ Class('iQ.ui.View', {
 
 , methods: {
     getData: function () {
-      if (!this.data && this.dataSource)
-        this.data = isFunction(this.dataSource) ? this.dataSource() : this.dataSource;
-      else
-        this.data = this.data || [ ];
+      if (!this.data) {
+        this.setDataSource(this.dataSource);
+      } else {
+        this.data = this.data;
+      }
       return this.data;
+    }
+  , setDataSource: function (dataSource) {
+      this.dataSource = dataSource;
+      if (isFunction(this.dataSource)) {
+        this.data = this.dataSource();
+      } else if (isString(this.dataSource) && this.dataSource.startsWith('http')) {
+        var m = this.dataSource.replace(/^https?:\/\//, '').split('/');
+        this.data = new iQ.data.RemoteObject({
+          server: m.shift()
+        , url: '/' + m.join('/')
+        , callback: this.onDataAvailable
+        , scope: this
+        });
+      } else if (isString(this.dataSource) && this.dataSource.startsWith('store://')) {
+        this.data = iQ.data.DataSource.getSource(this.dataSource);
+      } else {
+        this.data = this.dataSource || new iQ.data.DataSource();
+      }
+      this.data.dataUpdated = this.data.dataUpdated.after(this.onDataAvailable, this);
+    }
+  , onDataAvailable: function (data) {
     }
 
   , add: function () {
