@@ -198,7 +198,12 @@ Class('iQ.ui.TableView.Section', {
         var params = { };
         var map = mapping[item.name];
         map && [ map ].flatten().each(function (mi) {
-          params[mi.attribute] = this.convertDataValue(this.data.getValue(mi.field), mi.format, mi['default']);
+          var val;
+          if (mi.handler)
+            val = this.data[mi.handler]();
+          else
+            val = this.data.getValue(mi.field);
+          params[mi.attribute] = this.convertDataValue(val, mi.format, mi['default']);
         }, this);
         item = apply({ parent: this }, item);
         apply(item.config, params);
