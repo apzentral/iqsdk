@@ -53,7 +53,7 @@ Class('iQ.ui.Window', {
       return this.origConfig.name;
     }
   , setTitle: function (title) {
-      this.tiCtrl.setTitle(title);
+      return this.setProperty('title', iQ.i18n(title));
     }
   }
 });

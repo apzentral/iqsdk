@@ -15,7 +15,7 @@ Class('iQ.ui.Label', {
 
 , methods: {
     setText: function (text) {
-      return this.tiCtrl.setText(iQ.i18n(text));
+      return this.setProperty('text', iQ.i18n(text));
     }
   }
 });
@@ -42,8 +42,8 @@ Class('iQ.ui.Button', {
     setImage: function (img) {
       return this.tiCtrl.setImage(iQ.theme(img));
     }
-  , setText: function (text) {
-      return this.tiCtrl.setText(iQ.i18n(text));
+  , setTitle: function (text) {
+      return this.setProperty('title', iQ.i18n(text));
     }
   }
 });
