@@ -93,7 +93,7 @@ Class('iQ.Application', {
       return true;
     }
 
-  , loadLayout: function () {
+  , loadLayout: function (suppressOpen) {
       this.debug("Loading application interface");
       try {
         if (this.layout.type && isUndefined(this.layout.builder)) {
@@ -105,7 +105,8 @@ Class('iQ.Application', {
           }[this.layout.type]];
         }
         this.view = iQ.buildComponent(this.layout, { });
-        this.view.open();
+        if (suppressOpen !== true)
+          this.view.open();
       } catch (ex) {
         this.error("Failed to load application interface, exception raised:");
         this.logException(ex);
