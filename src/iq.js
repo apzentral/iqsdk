@@ -79,6 +79,9 @@ apply(iQ, {
      (layouts, strings, themes, views, data models, databases, network interfaces etc)
      */
     
+    Ti.UI.backgroundColor = Design.pageColor;
+    Ti.UI.statusBarType = Design.statusBarType;
+
     config.augment = config.augment || { };
     config.augment.loadData = config.augment.loadData || function () { };
     apply(TheApp, new iQ.Application(config));
