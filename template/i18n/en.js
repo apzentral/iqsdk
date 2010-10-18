@@ -1,16 +1,13 @@
 $STRINGS = {
-// ENGLISH STRINGS GO HERE:
+  tabTrack:     'Track'
+, tabContacts:  'Contacts'
+, tabLocations: 'Locations'
+, tabDirections:'Directions'
+, tabSettings:  'Settings'
 
-/*  wSettings: 'Settings'
-, wDone: 'Done'
-, ptAccounts: 'User accounts'
-, serviceError: 'LiveJournal service error'
-, noName: '<Untitled journal>'
-, addedAsFriend: 'You were added as a friend'
-
-, inbox:    'Inbox'
-, read:     'Read'
-, write:    'Write'
-, profile:  'Profile'
-, settings: 'Settings'*/
+, winTrack:     'Track'
+, winContacts:  'Contacts'
+, winLocations: 'Locations'
+, winDirections:'Directions'
+, winSettings:  'Settings'
 };

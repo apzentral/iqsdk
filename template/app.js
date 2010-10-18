@@ -1,16 +1,22 @@
+GpsLT = { };
 Ti.include('lib/iqcl/iq.js');
+iQ.include('model/model.js');
+iQ.include('views/views.js');
 
 iQ.initApp({
-  name: "AppTemplate"
-, database: false
-, server: false
-, layout: Layouts.main
+  name: "GPSLocationTracker"
+, urls: {
+  }
 , locales: {
     'default': 'en'
-  , defined: [ 'ru', 'en' ]
+  , defined: [ 'en' ]
+  }
+
+, after: {
+    loadData: function () {
+    }
   }
 
 , methods: {
-    // IMPLEMENT: Controller functions
   }
 });
