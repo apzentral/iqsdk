@@ -8,21 +8,20 @@ Class('iQ.data.DataFilter', {
 , does: iQ.role.Logging
 
 , methods: {
-    BUILD: function (source, filter) {
+    BUILD: function (source) {
       return {
-        source: source
-      , filter: filter
+        filter: null
+      , source: source
       };
     }
 
   , initialize: function () {
-      this.applyFilter();
-      this.source.dataUpdated = this.source.dataUpdated.after(this.applyFilter, this);
     }
 
-  , applyFilter: function () {
-      this.filtered = [ ];
-      this.source.each(function (rec) {
+  , applyFilter: function (filter, scope) {
+      if (filter)
+        this.filter = filter;
+      this.filtered = this.source.select(isFunction(this.filter) ? this.filter : function (rec) {
         var result = true;
         for (var key in this.filter) {
           var val = rec.getValue(key);
@@ -33,8 +32,9 @@ Class('iQ.data.DataFilter', {
             break;
           }
         }
-        if (result) this.filtered.push(rec);
-      }, this);
+        return result;
+      }, isFunction(this.filter) ? (scope || this) : this);
+      this.source.fireEvent('filterUpdated');
     }
   }
 });

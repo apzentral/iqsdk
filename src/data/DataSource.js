@@ -8,7 +8,10 @@ Class('iQ.data.DataSource', {
   , recordType: { required: false }
   }
 
-, does: iQ.role.Logging
+, does: [
+    iQ.role.Logging
+  , iQ.role.EventEmitter
+  ]
 
 , methods: {
     initialize: function () {
@@ -20,16 +23,53 @@ Class('iQ.data.DataSource', {
       iQ.data.DataSource.register(this);
     }
     
-  , dataUpdated: function () {
-      
+/*  , dataUpdated: function () {
+      // This is a stub function for event listeners binding
+      if (!this.filter)
+        this.filterUpdated();
+    }
+  , filterUpdated: function () {
+      // This is a stub function for event listeners binding
+    }*/
+
+  , addData: function (src, idx, suppressEvent) {
+      if (!src) return null;
+      if (isArray(src)) 
+        return src.each(this.addData.trail(suppressEvent), this);
+      var id = src[this.idField];
+      if (!id) id = iQ.data.Record.generateId();
+      src[this.idField] = id;
+      var rec = new this.recordType({
+        data: src
+      , idField: this.idField
+      });
+      return this.addRecord(rec, suppressEvent);
+    }
+    
+  , addRecord: function (rec, suppressEvent) {
+      var id = rec.getId();
+      var result = true;
+      if (isDefined(this.idIndex[id])) {
+        this.warn("Data record with id %s is already presented in the store".format(id));
+        result = false;
+      } else {
+        rec.data._dataSourceName = this.name;
+        this.idIndex[id] = rec;
+        this.data.push(rec);
+      }
+      if (suppressEvent !== true)
+        this.fireEvent('dataUpdated');
+      return result;
     }
 
   , getId: function (id) {
       return this.idIndex[id];
     }
     
-  , createFilter: function (filter) {
-      this.filter = new iQ.data.DataFilter(this, filter);
+  , applyFilter: function (filter) {
+      if (!this.filter)
+        this.filter = new iQ.data.DataFilter(this, filter);
+      this.filter.applyFilter(filter);
     }
 
   , getFiltered: function () {
@@ -37,12 +77,24 @@ Class('iQ.data.DataSource', {
       return this.filter.getFiltered();
     }
     
+  , getRecords: function () {
+      if (this.filter) {
+        return this.getFiltered();
+      }
+      return this.data;
+    }
+    
   , each: function (iterator, scope) {
       return this.data.each(iterator, scope);
     }
-
   , collect: function (iterator, scope) {
       return this.data.collect(iterator, scope);
+    }
+  , select: function (iterator, scope) {
+      return this.data.select(iterator, scope);
+    }
+  , detect: function (iterator, scope) {
+      return this.data.detect(iterator, scope);
     }
   }
   
@@ -70,6 +122,7 @@ Class('iQ.data.RemoteSource', {
   , port: { is: 'ro', required: false, init: 80 }
   , ssl: { is: 'ro', required: false, init: false }
   , url: { is: 'ro', required: true, description: 'URL to take the data from' }
+  , cache: { is: 'ro', required: false, init: false }
   }
 
 , after: {
@@ -82,12 +135,40 @@ Class('iQ.data.RemoteSource', {
 
 , methods: {
     load: function () {
+      this.loadCache();
       this.debug("Loading data from the server " + this.url);
       this.httpClient.get(this.url, {
     		on: { success: this.onLoadSuccess, failure: this.onLoadFailure }
   	  , scope: this
   	  , responseFormat: 'json'
   	  });
+    }
+
+  , loadCache: function () {
+      if (!this.cache) return;
+      this.debug("Loading data from cache " + this.cache);
+      try {
+        var f = Ti.Filesystem.getFile(this.cache);
+        var data = f.read();
+        this.data = [ ];
+        JSON.parse(data).each(this.addData.trail(true), this);
+        this.fireEvent('dataUpdated');
+      } catch (ex) {
+        this.error("Error loading cached data: ");
+        this.logException(ex);
+      }
+    }
+
+  , saveCache: function (json) {
+      if (!this.cache) return;
+      this.debug("Saving data to cache " + this.cache);
+      try {
+        var f = Ti.Filesystem.getFile(this.cache);
+        f.write(JSON.stringify(json));
+      } catch (ex) {
+        this.error("Error saving data to cache: ");
+        this.logException(ex);
+      }
     }
 
   , reload: function () {
@@ -97,23 +178,10 @@ Class('iQ.data.RemoteSource', {
   , onLoadSuccess: function (json) {
       this.debug("Data were successfully retrieved");
       if (!isArray(json)) json = [ json ];
-      this.data = [ ];
-      json.collect(function (src) {
-        if (!src) return null;
-        var id = src[this.idField];
-        if (!id) id = iQ.data.Record.generateId();
-        var rec = new this.recordType({
-          data: src
-        , idField: this.idField
-        });
-        if (isDefined(this.idIndex[id])) {
-          this.warn("Data record with id %s is already presented in the store".format(id));
-        } else {
-          this.idIndex[id] = rec;
-          this.data.push(rec);
-        }
-      }, this);
-      this.dataUpdated();
+      //this.data = [ ];
+      this.saveCache(json);
+      if (json.select(this.addData.trail(true), this).length > 0)
+        this.fireEvent('dataUpdated');
     }
 
   , onLoadFailure: function (info, type) {
