@@ -195,7 +195,7 @@ Class('iQ.ui.Component', {
   , setControl: function (location, ctrl) {
       try {
         ctrl.parent = this;
-        this.controls[ctrl.origConfig.name || Object.numericKeys(this.controls).length] = ctrl;
+        this.controls[ctrl.uiName() || Object.numericKeys(this.controls).length] = ctrl;
         this.tiCtrl[location] = ctrl.tiCtrl || ctrl;
       } catch (ex) {
         this.error("Error setting control %s for location %s:".format(ctrl.origConfig.name, location));
@@ -213,11 +213,15 @@ Class('iQ.ui.Component', {
   , animate: function (anim, cb) { 
       if (anim && anim.view)
         anim.view = anim.view.tiCtrl || anim.view;
-      this.tiCtrl.animate(anim, cb); return this; 
+      if (isFunction(cb))
+        this.tiCtrl.animate(anim, cb);
+      else
+        this.tiCtrl.animate(anim);
+      return this; 
     }
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
   , getProperty: function (prop) { return this.tiCtrl[prop]; }
-  , setProperty: function (prop, value) { this.tiCtrl[prop] = value; }
+  , setProperty: function (prop, value) { this.tiCtrl[prop] = this.preprocessAttribute(prop, value); }
   
   /*
    * Event listeners
