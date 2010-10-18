@@ -9,6 +9,7 @@ Class('iQ.ui.View', {
 , have: {
     tiClass: 'View'
   , tiFactory: Ti.UI.createView
+  , useDataSource: false
   }
 
 , before: {
@@ -53,17 +54,23 @@ Class('iQ.ui.View', {
 
 , methods: {
     getData: function () {
-      if (!this.data) {
+      if (!this.data && this.useDataSource) {
         this.setDataSource(this.dataSource);
       } else {
-        this.data = this.data;
+        this.data = this.data || [ ];
       }
       return this.data;
     }
   , setDataSource: function (dataSource) {
       this.dataSource = dataSource;
       if (isFunction(this.dataSource)) {
-        this.data = this.dataSource();
+        var data = this.dataSource();
+        if (isArray(data)) {
+          this.data = new iQ.data.DataSource();
+          this.data.addData(data);
+        } else {
+          this.data = data;
+        }
       } else if (isString(this.dataSource) && this.dataSource.startsWith('http')) {
         var m = this.dataSource.replace(/^https?:\/\//, '').split('/');
         this.data = new iQ.data.RemoteObject({
@@ -77,9 +84,15 @@ Class('iQ.ui.View', {
       } else {
         this.data = this.dataSource || new iQ.data.DataSource();
       }
-      this.data.dataUpdated = this.data.dataUpdated.after(this.onDataAvailable, this);
+      if (this.data instanceof iQ.data.DataSource) {
+        this.data.on('dataUpdated', this.onDataAvailable, this);
+        this.data.on('filterUpdated', this.onDataAvailable, this);
+      } else {
+        this.onDataAvailable();
+      }
     }
   , onDataAvailable: function (data) {
+      this.debug("New data available for the view; updating...");
     }
 
   , add: function () {

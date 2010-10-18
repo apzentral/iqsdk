@@ -10,6 +10,7 @@ Class('iQ.ui.TableView', {
 , have: {
     tiClass: 'TableView'
   , tiFactory: Ti.UI.createTableView
+  , useDataSource: true
   }
 
 , before: {
@@ -51,7 +52,10 @@ Class('iQ.ui.TableView', {
       this.renderRows();
     }
   , renderRows: function (page) {
-      var data = this.getData().data;
+      this.info("Rendering rows...");
+      var data = this.getData();
+      if (data instanceof iQ.data.DataSource)
+        data = data.getRecords();
       var len = data.length;
       if (this.paging.use)
         data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);

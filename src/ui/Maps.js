@@ -5,6 +5,7 @@ Class('iQ.ui.MapView', {
     annotations: null
   , tiClass: 'MapView'
   , tiFactory: Ti.Map.createView
+  , useDataSource: false
   }
 
 , before: {
@@ -36,11 +37,13 @@ Class('iQ.ui.MapView', {
     }
   , refresh: function () {
       this.empty();
-      this.renderRows();
+      this.renderAnnotations();
     }
   , renderAnnotations: function () {
       this.debug("Rendering annotations for map %s".format(this.uiName()));
-      var data = this.getData().data;
+      var data = this.getData();
+      if (data instanceof iQ.data.DataSource)
+        data = data.getRecords();
       var len = data.length;
       if (this.paging.use)
         data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);
@@ -120,9 +123,8 @@ Class('iQ.ui.MapView.Annotation', {
       if (m.subtitle) config.subtitle = this.data.getValue(m.subtitle.field || m.subtitle);
       if (m.leftImage) config.leftImage = this.data.getValue(m.leftImage.field || m.leftImage);
       if (m.rightImage) config.rightImage = this.data.getValue(m.rightImage.field || m.rightImage);
-      config.location = config.location || { };
-      if (m.latitude) config.location.latitude = this.data.getValue(m.latitude.field || m.latitude);
-      if (m.longitude) config.location.longitude = this.data.getValue(m.longitude.field || m.longitude);
+      if (m.latitude) config.latitude = this.data.getValue(m.latitude.field || m.latitude);
+      if (m.longitude) config.longitude = this.data.getValue(m.longitude.field || m.longitude);
       return config;
     }
   }
