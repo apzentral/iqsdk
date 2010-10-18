@@ -40,7 +40,6 @@ Class('iQ.FileDownload', {
         this.file = Ti.Filesystem.getFile(this.path, this.fileName);
         this.file.write(data);
         this.debug("File is saved to the local folder " + this.path + '/' + this.fileName);
-        this.INNER();
       } catch (ex) {
         this.error("Error saving the file " + this.path + '/' + this.fileName + ":");
         this.logException(ex);
