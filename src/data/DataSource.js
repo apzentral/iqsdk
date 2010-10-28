@@ -124,12 +124,17 @@ Class('iQ.data.RemoteSource', {
   , url: { is: 'ro', required: true, description: 'URL to take the data from' }
   , cache: { is: 'ro', required: false, init: false }
   }
+  
+, have: {
+    autoLoad: false
+  }
 
 , after: {
     initialize: function () {
 	    this.debug("Initializing remote source %s for %s:%s%s".format(this.getName(), this.server, this.port, this.url));
       this.httpClient = iQ.HTTP.createClient(this.server, this.port, this.ssl);
-      //this.load();
+      if (this.autoLoad === true)
+        this.load();
     }
   }
 
