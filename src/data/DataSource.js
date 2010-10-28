@@ -66,6 +66,14 @@ Class('iQ.data.DataSource', {
       return this.idIndex[id];
     }
     
+  , getAt: function (idx) {
+      return this.data[idx];
+    }
+    
+  , getIndexById: function (id) {
+      return this.data.pluck('id').indexOf(id);
+    }
+    
   , applyFilter: function (filter) {
       if (!this.filter)
         this.filter = new iQ.data.DataFilter(this, filter);
