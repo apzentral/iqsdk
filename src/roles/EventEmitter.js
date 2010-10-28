@@ -62,11 +62,12 @@ Role('iQ.role.EventEmitter', {
         Object.each(v, function (a, b) {
           try {
             this.info("Calling %s event listener from %s (%s)".format(event, b.scope.meta.name, b.scope.uiName ? b.scope.uiName() : '<noname>'));
-            b.handler.apply(b.scope, [ params ].concat(b.opts.arguments || [ ]));
             if (b.opts.single === true)
               this.un(event, b.handler, b.scope);
+            b.handler.apply(b.scope, [ params ].concat(b.opts.arguments || [ ]));
           } catch (ex) {
-            this.error("Exception during callback excetion on event %s in function %s".format(event, b.handler.toString()));
+            this.error("Exception during callback execution on event %s in function %s".format(event, b.handler.toString()));
+            this.logException(ex);
           }
         }, this);
       }, this);
