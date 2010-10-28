@@ -94,6 +94,11 @@ apply(iQ, {
     TheApp.start(Layouts.main);
   }
 
+  // TODO: Singnificantly improve!
+, on: function (obj, event, fn, scope) {
+    obj.addEventListener(event, fn.bind(scope || this));
+  }
+
 , i18n: function (
     str      /// (String required)
   ) {
