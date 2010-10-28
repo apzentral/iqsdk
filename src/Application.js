@@ -1,6 +1,9 @@
 
 Class('iQ.Application', {
-  does: iQ.role.Logging
+  does: [
+    iQ.role.Logging
+  , iQ.role.EventEmitter
+  ]
 
 , has: {
     name: { required: true }
@@ -50,7 +53,8 @@ Class('iQ.Application', {
       var success = true;
       this.layout = this.layout || layout;
       try {
-        success = this.loadData() && this.loadLayout();
+        this.on('dataLoaded', this.loadLayout, this, { single: true });
+        success = this.loadData();
       } catch (ex) {
         this.error("Exception during application startup:");
         this.logException(ex);
@@ -66,7 +70,10 @@ Class('iQ.Application', {
       this.debug("Loading data");
       try {
         this.loadDatabase();
-        this.INNER();
+        if (isFunction(this.INNER))
+          this.INNER();
+        if (this.config.waitForData !== true)
+          this.fireEvent('dataLoaded');
       } catch (ex) {
         this.error("Failed to load data, exception raised:");
         this.logException(ex);
@@ -105,13 +112,38 @@ Class('iQ.Application', {
           }[this.layout.type]];
         }
         this.view = iQ.buildComponent(this.layout, { });
-        if (suppressOpen !== true)
-          this.view.open();
+        if (suppressOpen !== true) {
+          if  (this.layout.builder != iQ.ui.Navigation) {
+            this.view.open();
+          } else {
+            var win = iQ.buildComponent({
+              builder: iQ.ui.Window
+            , config: { top: 0, left: 0, right: 0, bottom: 0 }
+            });
+            win.add(this.view);
+            win.open();
+          }
+        }
+        this.bindListeners();
       } catch (ex) {
         this.error("Failed to load application interface, exception raised:");
         this.logException(ex);
         this.view = null;
         return false;
+      }
+      return true;
+    }
+    
+  , bindListeners: function () {
+      this.debug("Binding application event listeners");
+      if (isFunction(this.INNER)) {
+        try {
+          return this.INNER();
+        } catch (ex) {
+          this.error("Failed to bind application event listeners, exception raised:");
+          this.logException(ex);
+          return false;
+        }
       }
       return true;
     }
