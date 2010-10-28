@@ -25,6 +25,7 @@ Class('iQ.ui.TableView', {
 
 , after: {
     render: function () {
+      this.empty(false);
       this.renderRows();
       return true;
     }
@@ -64,13 +65,13 @@ Class('iQ.ui.TableView', {
       //  this.renderRow({ className: 'pager' });
     }
   , renderRow: function (item, idx) {
-      var className = item.className || 'default';
-      var rowConfig = this.origConfig.rowClasses[className];
+      var className = ((item instanceof iQ.data.Record) ? item.getValue('className') : item.className) || 'default';
+      var rowConfig = this.origConfig.rowClasses[className] || { };
       this.debug("Rendering row of class " + className);
       item.rowIndex = idx;
       var row = new iQ.ui.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
-      this.rows[item.name] = row;
+      this.rows[idx] = row;
       this.appendRow(row);
     }
 
@@ -234,12 +235,18 @@ Class('iQ.ui.TableView.Row', {
   
 , hasnt: [ 'sectionClass' ]
 
+, after: {
+    initStrings: function () {
+      this.__themeStrings.push('leftImage', 'rightImage');
+    }
+  }
+
 , override: {
     BUILD: function (data, config, rowClass) {
       var o = this.SUPER(data, config, rowClass);
       apply(o.origConfig.config, {
         rowClass: rowClass
-      , iQData: data.data
+      , iQData: data.data || data
       });
       return apply(o, {
         data: data
@@ -252,9 +259,18 @@ Class('iQ.ui.TableView.Row', {
       if (this.layout) return config;
       config = apply({ }, config);
       var m = this.mapping;
-      if (m.title) config.title = this.data.getValue(m.title.field || m.title);
-      if (m.leftImage) config.leftImage = this.data.getValue(m.leftImage.field || m.leftImage);
-      if (m.rightImage) config.rightImage = this.data.getValue(m.rightImage.field || m.rightImage);
+      var d = this.data;
+      function _get(f) {
+        f = m[f].field || m[f];
+        if (d instanceof iQ.data.Record)
+          return d.getValue(f);
+        else
+          return d[f];
+      }
+      
+      if (m.title) config.title = _get('title');
+      if (m.leftImage) config.leftImage = _get('leftImage');
+      if (m.rightImage) config.rightImage = _get('rightImage');
       return config;
     }
   }  

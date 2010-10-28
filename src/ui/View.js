@@ -67,7 +67,7 @@ Class('iQ.ui.View', {
         var data = this.dataSource();
         if (isArray(data)) {
           this.data = new iQ.data.DataSource();
-          this.data.addData(data);
+          this.data.addData(data, true);
         } else {
           this.data = data;
         }
@@ -85,6 +85,7 @@ Class('iQ.ui.View', {
         this.data = this.dataSource || new iQ.data.DataSource();
       }
       if (this.data instanceof iQ.data.DataSource) {
+        this.onDataAvailable();
         this.data.on('dataUpdated', this.onDataAvailable, this);
         this.data.on('filterUpdated', this.onDataAvailable, this);
       } else {
@@ -96,8 +97,9 @@ Class('iQ.ui.View', {
     }
 
   , add: function () {
-      for (var i = 0; i < arguments.length; i++) {
-        var view = arguments[i];
+      var a = isArray(arguments[0]) ? arguments[0] : arguments;
+      for (var i = 0; i < a.length; i++) {
+        var view = a[i];
         if (!view) continue;
         var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
         view.parent = this;
@@ -107,8 +109,9 @@ Class('iQ.ui.View', {
       return this;
     }
   , remove: function () {
-      for (var i = 0; i < arguments.length; i++) {
-        var view = arguments[i];
+      var a = isArray(arguments[0]) ? arguments[0] : arguments;
+      for (var i = 0; i < a.length; i++) {
+        var view = a[i];
         if (!view) continue;
         var name = view.origConfig.name;
         var ctrl = this.components[name];
