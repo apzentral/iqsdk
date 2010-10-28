@@ -19,4 +19,5 @@ iQ.include('lib/iqcl/ui/Navigation.js');
 
 if(iQ.iPad()) {
   iQ.include('lib/iqcl/ui/Split.js');
+  iQ.include('lib/iqcl/ui/Popover.js');
 }

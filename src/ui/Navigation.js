@@ -30,7 +30,7 @@ Class('iQ.ui.Navigation', {
   
 , methods: {
     open: function (win) {
-      return this.tiCtrl.open(win ? (win.tiCtrl || win) : this.window);
+      return this.tiCtrl.open(win ? (win.tiCtrl || win) : (this.window.tiCtrl || this.window));
     }
   }
 });
