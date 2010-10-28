@@ -1,5 +1,8 @@
 iQ.util = {
-  callPhone: function (number) {
+  showAlert: function (message, title) {
+    (new iQ.ui.AlertDialog(title || TheApp.title, message, [ 'OK' ])).show();
+  }
+, callPhone: function (number) {
     var phone = 'tel://' + number.replace(/[^\d\+]+/g, '');
     if (Ti.Platform.model == 'Simulator') {
       alert('Making call to ' + phone);
