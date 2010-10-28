@@ -23,6 +23,11 @@ Class('iQ.ui.WebView', {
   , setBasicAuthentication: function () { 
       return this.tiCtrl.setBasicAuthentication.apply(this, arguments); 
     }
+
+  , getURL: function () { return this.getProperty('url'); }
+  , setURL: function (html) { return this.setProperty('url', html); }
+  , getHTML: function () { return this.getProperty('html'); }
+  , setHTML: function (html) { return this.setProperty('html', html); }
   }
 });
 
