@@ -207,8 +207,8 @@ Class('iQ.ui.Component', {
   /*
    * Wrappers for Titanium API functions
    */
-  , show: function () { this.tiCtrl.show(); return this; }
-  , hide: function () { this.tiCtrl.hide(); return this; }
+  , show: function (opts) { this.tiCtrl.show(opts); return this; }
+  , hide: function (opts) { this.tiCtrl.hide(opts); return this; }
   , isVisible: function () { return this.tiCtrl.visible; }
   , animate: function (anim, cb) { 
       if (anim && anim.view)
@@ -222,6 +222,12 @@ Class('iQ.ui.Component', {
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
   , getProperty: function (prop) { return this.tiCtrl[prop]; }
   , setProperty: function (prop, value) { this.tiCtrl[prop] = this.preprocessAttribute(prop, value); }
+  
+  , applyPosition: function (pos) {
+      Object.each(pos, function (loc, val) {
+        this.tiCtrl[loc] = val;
+      }, this);
+    }
   
   /*
    * Event listeners
