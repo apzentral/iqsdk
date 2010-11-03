@@ -19,7 +19,7 @@ Class('iQ.ui.TableView', {
       this.paging.pagesOpened = 1;
     }
   , construct: function () {
-      this.rows = { };
+      this.rows = [ ];
     }
   }
 
@@ -30,6 +30,7 @@ Class('iQ.ui.TableView', {
       return true;
     }
   , onDataAvailable: function () {
+      this.debug("New data for the table are available");
       this.empty(false);
       this.renderRows();
     }
@@ -44,6 +45,8 @@ Class('iQ.ui.TableView', {
 
 , methods: {
     empty: function (emptyData) {
+      this.debug("Emptying the table");
+      this.rows = [ ];
       this.tiCtrl.setData([ ]);
       if (emptyData !== false)
         this.data = null;
@@ -61,10 +64,11 @@ Class('iQ.ui.TableView', {
       if (this.paging.use)
         data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);
       data.each(this.renderRow, this);
+      //this.tiCtrl.setData(this.rows);
       //if (this.paging.use && len > this.paging.pageSize * this.paging.pagesOpened)
       //  this.renderRow({ className: 'pager' });
     }
-  , renderRow: function (item, idx) {
+  , renderRow: function (item, idx, suppressAppend) {
       var className = ((item instanceof iQ.data.Record) ? item.getValue('className') : item.className) || 'default';
       var rowConfig = this.origConfig.rowClasses[className] || { };
       this.debug("Rendering row of class " + className);
@@ -72,7 +76,8 @@ Class('iQ.ui.TableView', {
       var row = new iQ.ui.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
       this.rows[idx] = row;
-      this.appendRow(row);
+      if (suppressAppend !== true)
+        this.appendRow(row);
     }
 
   , appendRow: function (row) {

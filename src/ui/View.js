@@ -67,7 +67,7 @@ Class('iQ.ui.View', {
         var data = this.dataSource();
         if (isArray(data)) {
           this.data = new iQ.data.DataSource();
-          this.data.addData(data, true);
+          this.data.addData(data, null, true);
         } else {
           this.data = data;
         }

@@ -105,13 +105,14 @@ apply(iQ, {
     /*** iQ.i18n(str: String): String
      
      */
-    return (!str || str.charAt(0) != '%') ? str : ($STRINGS[str.slice(1)] || '');
+        str = str.toString();
+    return (!isString(str) || str.charAt(0) != '%') ? str : ($STRINGS[str.slice(1)] || '');
   }
   
 , theme: function (
     str      /// (String required)
   ) {
-    return (!str || str.charAt(0) != '%') 
+    return (!isString(str) || str.charAt(0) != '%') 
            ? str 
            : 'themes/' + TheApp.getTheme() + '/' + ($THEME[str.slice(1)] || '');
   }
