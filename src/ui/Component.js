@@ -222,6 +222,8 @@ Class('iQ.ui.Component', {
   , toImage: function (cb) { return this.tiCtrl.toImage(cb); }
   , getProperty: function (prop) { return this.tiCtrl[prop]; }
   , setProperty: function (prop, value) { this.tiCtrl[prop] = this.preprocessAttribute(prop, value); }
+  , getBackgroundImage: function () { return this.getProperty('backgroundImage'); }
+  , setBackgroundImage: function (img) { return this.setProperty('backgroundImage', img); }
   
   , applyPosition: function (pos) {
       Object.each(pos, function (loc, val) {
