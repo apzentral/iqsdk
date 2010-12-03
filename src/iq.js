@@ -89,7 +89,9 @@ apply(iQ, {
     iQ.include('i18n/' + TheApp.getLocale() + '.js');
     iQ.include('themes/' + TheApp.getTheme() + '.js');
 
-    iQ.include('layouts/layouts.js');
+    iQ.include('controllers/controllers.js');
+    iQ.include('model/model.js');
+    iQ.include('views/views.js');
 
     TheApp.start(Layouts.main);
   }

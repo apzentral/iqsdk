@@ -1,10 +1,8 @@
-GpsLT = { };
+/* Type in brief name of the app */ = { };
 Ti.include('lib/iqcl/iq.js');
-iQ.include('model/model.js');
-iQ.include('views/views.js');
 
 iQ.initApp({
-  name: "GPSLocationTracker"
+  name: // Type in the name of the app
 , urls: {
   }
 , locales: {
@@ -13,8 +11,6 @@ iQ.initApp({
   }
 
 , after: {
-    loadData: function () {
-    }
   }
 
 , methods: {
