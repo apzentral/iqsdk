@@ -81,6 +81,8 @@ apply(iQ, {
     
     Ti.UI.backgroundColor = Design.pageColor;
     Ti.UI.statusBarType = Design.statusBarType;
+    if (Design.orientation)
+      Ti.UI.orientation = Design.orientation;
 
     config.augment = config.augment || { };
     config.augment.loadData = config.augment.loadData || function () { };
