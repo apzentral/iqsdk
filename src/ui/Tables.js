@@ -207,8 +207,10 @@ Class('iQ.ui.TableView.Section', {
           var val;
           if (mi.handler)
             val = this.data[mi.handler]();
-          else
+          else if (this.data instanceof iQ.data.Record)
             val = this.data.getValue(mi.field);
+          else 
+            val = this.data[mi.field];
           params[mi.attribute] = this.convertDataValue(val, mi.format, mi['default']);
         }, this);
         item = apply({ parent: this }, item);
