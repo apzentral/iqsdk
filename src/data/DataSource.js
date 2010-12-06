@@ -140,21 +140,33 @@ Class('iQ.data.RemoteSource', {
 , after: {
     initialize: function () {
 	    this.debug("Initializing remote source %s for %s:%s%s".format(this.getName(), this.server, this.port, this.url));
-      this.httpClient = iQ.HTTP.createClient(this.server, this.port, this.ssl);
+      this.httpClient = this.createHttpClient();
       if (this.autoLoad === true)
         this.load();
     }
   }
 
 , methods: {
-    load: function () {
+    createHttpClient: function () {
+      return iQ.HTTP.createClient(this.server, this.port, this.ssl);
+    }
+  , prepareHttpRequest: function (req) {
+      return req;
+    }
+  , processHttpResponse: function (data) {
+      return data;
+    }
+
+  , load: function () {
       this.loadCache();
       this.debug("Loading data from the server " + this.url);
-      this.httpClient.get(this.url, {
-    		on: { success: this.onLoadSuccess, failure: this.onLoadFailure }
-  	  , scope: this
-  	  , responseFormat: 'json'
-  	  });
+      if (this.INNER)
+        this.INNER();
+      else
+        this.httpClient.get(this.url, this.prepareHttpRequest({
+      		on: { success: this.onLoadSuccess, failure: this.onLoadFailure }
+    	  , scope: this
+    	  }));
     }
 
   , loadCache: function () {
@@ -188,18 +200,44 @@ Class('iQ.data.RemoteSource', {
       this.load();
     }
   
-  , onLoadSuccess: function (json) {
+  , onLoadSuccess: function (data) {
       this.debug("Data were successfully retrieved");
-      if (!isArray(json)) json = [ json ];
-      //this.data = [ ];
-      this.saveCache(json);
-      if (json.select(this.addData.trail(true), this).length > 0)
+      var recs = this.processHttpResponse(data);
+      this.saveCache(recs);
+      if (recs.select(this.addData.trail(true), this).length > 0)
         this.fireEvent('dataUpdated');
     }
 
   , onLoadFailure: function (info, type) {
       this.error("Can't get remote data: error " + type);
       this.dumpObject(info);
+    }
+  }
+});
+
+Class('iQ.data.JSONSource', {
+  isa: iQ.data.RemoteSource
+
+, override: {
+    prepareHttpRequest: function (req) {
+      return apply(req, { responseFormat: 'json' });
+    },
+    processHttpResponse: function (json) {
+      if (!isArray(json)) json = [ json ];
+      return json
+    }
+  }
+});
+
+Class('iQ.data.XMLSource', {
+  isa: iQ.data.RemoteSource
+
+, override: {
+    prepareHttpRequest: function (req) {
+      return apply(req, { responseFormat: 'xml' });
+    },
+    processHttpResponse: function (json) {
+      return [ ];
     }
   }
 });
