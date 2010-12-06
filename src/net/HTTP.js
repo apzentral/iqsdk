@@ -77,11 +77,11 @@ Class('iQ.HTTP.Client.Titanium', {
       opts = opts || { };
       var me = this;
       var req = me.engine();
-      me.debug("Sending HTTP " + method + " " + url);
+      me.debug("Sending HTTP %s %s:%s%s".format(method, this.server, this.port, url));
       req.onload = function () {
         var data = this.responseText;
         me.debug("Got HTTP response...");
-        me.dumpObject(data);
+        //me.dumpObject(data);
         if (opts.responseFormat == 'xml') {
           data = this.responseXML;
         } else if (opts.responseFormat == 'binary') {
@@ -103,7 +103,7 @@ Class('iQ.HTTP.Client.Titanium', {
         me.error("HTTP error: " + this.status + "; " + this.responseText);
         isFunction(opts.on.failure) && opts.on.failure.call(opts.scope, this.responseText, this.status);
       };
-      req.open(method, 'http' + (this.ssl ? 's' : '') + '://' + this.server + ':' + this.port + url);
+      req.open(method, 'http' + (this.ssl === true ? 's' : '') + '://' + this.server + ':' + this.port + url);
       if (isObject(opts.headers))
         for (var k in opts.headers)
           req.setRequestHeader(k, opts.headers[k]);
