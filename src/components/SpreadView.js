@@ -1,7 +1,9 @@
 
 Class('iQ.views.SpreadView', {
   isa: iQ.ui.ScrollView
-  
+
+, does: [ iQ.role.UI.Masked ]
+
 , has: {
     views: { is: 'ro', required: false }
   , currentOrientation: { is: 'ro', required: false }
@@ -25,6 +27,7 @@ Class('iQ.views.SpreadView', {
     }
     
   , renderViews: function () {
+      this.showMask();
       this.getData();
       this.views && this.views.each(function (view) {
         this.remove(view);
@@ -33,7 +36,8 @@ Class('iQ.views.SpreadView', {
       if (!this.data || this.data.length == 0)
         this.renderEmptyView();
       else
-        this.data.each(this.renderView, this)
+        this.data.each(this.renderView, this);
+      this.hideMask();
     }
 
   , renderView: function (data, idx) {
