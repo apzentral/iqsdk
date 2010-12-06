@@ -88,12 +88,12 @@ apply(iQ, {
     config.augment.loadData = config.augment.loadData || function () { };
     apply(TheApp, new iQ.Application(config));
 
-    iQ.include('i18n/' + TheApp.getLocale() + '.js');
-    iQ.include('themes/' + TheApp.getTheme() + '.js');
+    iQ.include('res/i18n/' + TheApp.getLocale() + '.js');
+    iQ.include('res/themes/' + TheApp.getTheme() + '.js');
 
-    iQ.include('controllers/controllers.js');
-    iQ.include('model/model.js');
-    iQ.include('views/views.js');
+    iQ.include('src/controllers/controllers.js');
+    iQ.include('src/model/model.js');
+    iQ.include('src/views/views.js');
 
     TheApp.start(Layouts.main);
   }
@@ -118,7 +118,7 @@ apply(iQ, {
   ) {
     return (!isString(str) || str.charAt(0) != '%') 
            ? str 
-           : 'themes/' + TheApp.getTheme() + '/' + ($THEME[str.slice(1)] || '');
+           : 'res/themes/' + TheApp.getTheme() + '/' + ($THEME[str.slice(1)] || '');
   }
 
 , isPortrait: function (orient) {
