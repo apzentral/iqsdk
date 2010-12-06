@@ -2,7 +2,9 @@
 Module('iQ.XmlRpc', function () { });
 
 Class('iQ.XmlRpc.Client', {
-  has: {
+  does: [ iQ.role.Logging, iQ.role.EventEmitter ]
+
+, has: {
     server: { required: true, is: 'ro' }
   , port: { init: 80, is: 'ro' }
   , path: { required: true, is: 'ro' }
@@ -17,11 +19,12 @@ Class('iQ.XmlRpc.Client', {
         path: path,
         port: port,
         ssl: ssl,
-        httpClient: HTTP.createClient(server, port, ssl)
+        httpClient: iQ.HTTP.createClient(server, port, ssl)
       };
     }
     
   , convertArgument: function (arg) {
+      var val = '';
       switch (typeOf(arg)) {
       case 'boolean':
         val = '<boolean>' + (!!arg ? 1 : 0) + '</boolean>';
@@ -55,24 +58,35 @@ Class('iQ.XmlRpc.Client', {
   
   , buildRequestBody: function (method, params) {
       var body = '<methodCall><methodName>' + method + '</methodName><params>';
-      for (var i in params)
-        body += '<param>' + this.convertArgument(params[i]) + '</param>';
+      params = isArray(params) ? params : [ params ];
+      params.each(function (p) {
+        body += '<param>' + this.convertArgument(p) + '</param>';
+      }, this);
       return body + '</params></methodCall>';
     }
   
+/*  , processResponse: function (xml) {
+      var Tr = iQ.XmlTraversal;
+      var node = Tr.childElement(xml);
+      var resp = [ ];
+      do {
+        resp.push(this.processArgument(node));
+      } while (node = Tr.nextElement(node));
+      return resp;
+    }*/
   , processArgument: function (xml) {
       try {
         var value, cn, node, node2, name, data;
-        var Tr = JsXl.XmlTraversal;
+        var Tr = iQ.XmlTraversal;
         var val = xml.firstChild.nodeValue;
         switch (xml.nodeName) {
         case 'struct':
           value = { };
           cn = xml.childNodes;
-          for (var i in cn) {
-            node = cn[i];
+          for (var i = 0; i < cn.length; i++) {
+            node = cn.item(i);
             if (node.nodeType != 1) continue;
-            node2 = Tr.firstElement(node);
+            node2 = Tr.childElement(node);
             if (node2.nodeName == 'name') {
               name = node2;
               data = Tr.nextElement(node2);
@@ -80,15 +94,16 @@ Class('iQ.XmlRpc.Client', {
               name = Tr.nextElement(node2);
               data = node2;
             }
-            node2 = Tr.firstElement(data);
+            node2 = Tr.childElement(data);
             value[name.firstChild.nodeValue] = node2 ? this.processArgument(node2) : null;
           }
           return value;
         case 'array':
           value = [ ];
-          cn = Tr.firstElement(xml).childNodes;
-          for (var i in cn)
-            value.push(this.processArgument(Tr.firstElement(cn[i])));
+          cn = Tr.childElement(xml).childNodes;
+          for (var i = 0; i < cn.length; i++) {
+            value.push(this.processArgument(Tr.childElement(cn.item(i))));
+          }
           return value;
         case 'string':
           return val;
@@ -100,7 +115,7 @@ Class('iQ.XmlRpc.Client', {
         case 'double':
           return parseFloat(val);
         case 'base64':
-          if (Ti && Ti.Utils) return Ti.Utils.base64decode(val);
+          if (Ti && Ti.Utils) return Ti.Utils.base64decode(val).toString();
           return val; // TODO: Add support for BASE64
         case 'dateTime.iso8601':
           return val; // TODO: Add support for datatime parsing
@@ -108,21 +123,23 @@ Class('iQ.XmlRpc.Client', {
           return null;
         }
       } catch (ex) {
-        return 'Misformatted response';
+        this.error('Misformatted response');
+        this.logException(ex);
       }
     }
     
   , getResponseRoot: function (xml) {
-      return this.getXmlRpcRoot(xml, 'value');
+      return this.getXmlRpcRoot(xml, 'struct');
     }
   , getErrorRoot: function (xml) {
       return this.getXmlRpcRoot(xml, 'fault');
     }
   , getXmlRpcRoot: function (xml, tag) {
-      var Tr = JsXl.XmlTraversal;
+      var Tr = iQ.XmlTraversal;
       try {
-        return Tr.firstElement(Tr.descendant(xml, 'tag'));
+        return Tr.descendant(xml, tag);
       } catch (ex) {
+        this.error("Wrong format of XMLRPC error: can't locate response root element");
         return null;
       }
     }
@@ -132,12 +149,14 @@ Class('iQ.XmlRpc.Client', {
 
   , request: function (method, params, cbs) {
       cbs = applyIf(cbs || { }, { scope: this });
+      var body = this.buildRequestBody(method, params);
+      this.info(body);
       this.httpClient.post(this.path, {
         headers: {
           'Content-Type': 'text/xml'
         , 'Accept-Type': 'application/xml'
         }
-      , body: this.buildRequestBody(method, params)
+      , body: body
       , responseFormat: 'xml'
       , on: {
           success: function (xml) {
@@ -145,8 +164,10 @@ Class('iQ.XmlRpc.Client', {
               return isFunction(cbs.failure) && cbs.failure.call(cbs.scope, 'xml', 'Response is not in XML format', xml);
             var resp;
             try {
-              resp = this.processResponse(this.getResponseRoot(xml) || this.getErrorRoot(xml));
+              resp = this.processArgument(this.getResponseRoot(xml) || this.getErrorRoot(xml));
             } catch (ex) {
+              this.error("Error parsing XMLRPC response");
+              this.logException(ex);
               return isFunction(cbs.failure) && cbs.failure.call(cbs.scope, 'xml', ex, xml);
             }
             if (this.isXmlRpcError(xml))
