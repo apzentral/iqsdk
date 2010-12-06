@@ -345,11 +345,13 @@ Class('iQ.data.SqlStore', {
       var sql = "SELECT DISTINCT " + fields.join(',') + " FROM '" + table + "'" + query;
       if (isObject(opts)) {
         if (isString(opts.order)) {
-          sql += " ORDER BY " + opts.order + " ASC";
-        } else if (isArray(opts.order)) {
+          if (isString(o)) sql += " ORDER BY " + opts.order + " ASC";
+        } else if (isObject(opts.order))
+          opts.order = [ opts.order ];
+        if (isArray(opts.order)) {
           sql += " ORDER BY " + opts.order.collect(function (o) {
             if (isString(o)) return o + " ASC";
-            else if (isObject(o)) return Object.keys(o)[0] + Object.values(o)[0];
+            else if (isObject(o)) return Object.keys(o)[0] + " " + Object.values(o)[0].toUpperCase();
           }).compact().uniq().join(', ');
         }
         
