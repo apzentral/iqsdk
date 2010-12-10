@@ -1,6 +1,6 @@
 Class('iQ.ui.TableView', {
   isa: iQ.ui.View
-  
+
 , has: {
     rows: { is: 'ro', required: false, init: null }
   , layouts: { is: 'ro', required: false, init: null }

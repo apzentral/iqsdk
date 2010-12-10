@@ -8,8 +8,8 @@ Role('iQ.role.UI.Masked', {
 , methods: {
     showMask: function () {
       if (!this.maskView) {
-        this.maskView = iQue.buildComponent({
-          builder:iQue.UI.Label,
+        this.maskView = iQ.buildComponent({
+          builder: iQ.ui.Label,
           config: {
             top:0,left:0,right:0,bottom:0,
             backgroundColor:'#80000000',

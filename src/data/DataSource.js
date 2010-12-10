@@ -135,6 +135,7 @@ Class('iQ.data.RemoteSource', {
   
 , have: {
     autoLoad: false
+  , httpClient: null
   }
 
 , after: {

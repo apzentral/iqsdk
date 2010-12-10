@@ -78,7 +78,7 @@ Class('iQ.XmlRpc.Client', {
       try {
         var value, cn, node, node2, name, data;
         var Tr = iQ.XmlTraversal;
-        var val = xml.firstChild.nodeValue;
+        var val = xml.firstChild ? xml.firstChild.nodeValue : null;
         switch (xml.nodeName) {
         case 'struct':
           value = { };
@@ -139,7 +139,7 @@ Class('iQ.XmlRpc.Client', {
       try {
         return Tr.descendant(xml, tag);
       } catch (ex) {
-        this.error("Wrong format of XMLRPC error: can't locate response root element");
+        this.error("Wrong format of XML RPC error: can't locate response root element");
         return null;
       }
     }
@@ -166,7 +166,7 @@ Class('iQ.XmlRpc.Client', {
             try {
               resp = this.processArgument(this.getResponseRoot(xml) || this.getErrorRoot(xml));
             } catch (ex) {
-              this.error("Error parsing XMLRPC response");
+              this.error("Error parsing XML RPC response");
               this.logException(ex);
               return isFunction(cbs.failure) && cbs.failure.call(cbs.scope, 'xml', ex, xml);
             }

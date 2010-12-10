@@ -109,7 +109,7 @@ apply(iQ, {
     /*** iQ.i18n(str: String): String
      
      */
-        str = str.toString();
+    str = str ? str.toString() : '';
     return (!isString(str) || str.charAt(0) != '%') ? str : ($STRINGS[str.slice(1)] || '');
   }
   
