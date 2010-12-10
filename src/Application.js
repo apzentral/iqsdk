@@ -13,7 +13,8 @@ Class('iQ.Application', {
   
 , have: {
     view: null
-  , dialogs: { }
+  , dialogs: null
+  , windows: null
   , db: null
   }
 
@@ -33,6 +34,8 @@ Class('iQ.Application', {
   , initialize: function () {
       try {
         this.debug("Extending application with additional methods...");
+        this.dialogs = { };
+        this.windows = { };
         var ext = { };
         'methods after before override augment'.split(' ').each(function (key) {
           if (!this.config[key]) return;
@@ -167,6 +170,26 @@ Class('iQ.Application', {
       dlg.open();
     }
 
+  , openWindow: function (win) {
+      if (isString(win))
+        win = this.windows[win] || Layouts[win];
+      if (isObject(win) && !(win instanceof iQ.ui.Component))
+        this.windows[win.name || Object.numericKeys(this.windows).length] = 
+        win = iQ.buildComponent(win);
+
+      if (!win) {
+        this.error("Wrong window object specified for Application#openWindow method:");
+        this.dumpObject(win);
+      }
+
+      if (this.layout.builder == iQ.ui.Navigation) {
+        this.view.open(win)
+      } else if (this.layout.builder = iQ.ui.TabGroup) {
+        this.view.getActiveTab().open(win.tiCtrl);
+      } else {
+        win.open();
+      }
+    }
 
   , getLocale: function () {
       var phoneLocale = Ti.Platform.locale;
