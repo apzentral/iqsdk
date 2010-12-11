@@ -57,9 +57,26 @@ Class('iQ.data.DataSource', {
         this.idIndex[id] = rec;
         this.data.push(rec);
       }
+      this.INNER && this.INNER(rec, suppressEvent);
       if (suppressEvent !== true)
         this.fireEvent('dataUpdated');
       return result;
+    }
+    
+  , removeRecord: function (rec, suppressEvent) {
+      if (!(rec instanceof iQ.data.Record))
+        rec = this.getId(rec);
+      if (!(rec instanceof iQ.data.Record) || isUndefined(this.idIndex[rec.id])) {
+        this.warn("Data record with id %s is not presented in the store".format(rec ? '<null>' : rec.id));
+        return false;
+      }
+      rec.data._dataSourceName = null;
+      this.data.remove(rec);
+      delete this.data.idIndex[rec.id];
+      this.INNER && this.INNER(rec, suppressEvent);
+      if (suppressEvent !== true)
+        this.fireEvent('dataUpdated');
+      return true;
     }
 
   , getId: function (id) {
@@ -72,6 +89,10 @@ Class('iQ.data.DataSource', {
     
   , getIndexById: function (id) {
       return this.data.pluck('id').indexOf(id);
+    }
+    
+  , count: function () {
+      return this.data.length;
     }
     
   , applyFilter: function (filter) {
