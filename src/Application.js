@@ -128,6 +128,7 @@ Class('iQ.Application', {
           }
         }
         this.bindListeners();
+        this.INNER && this.INNER();
       } catch (ex) {
         this.error("Failed to load application interface, exception raised:");
         this.logException(ex);
