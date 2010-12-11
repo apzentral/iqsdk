@@ -224,9 +224,14 @@ Class('iQ.ui.Component', {
   , setProperty: function (prop, value) { this.tiCtrl[prop] = this.preprocessAttribute(prop, value); }
   , getBackgroundImage: function () { return this.getProperty('backgroundImage'); }
   , setBackgroundImage: function (img) { return this.setProperty('backgroundImage', img); }
-  
+  , applyProperties: function (props) {
+      Object.each(props, function (prop, val) {
+        this.tiCtrl[prop] = val;
+      }, this);
+    }
   , applyPosition: function (pos) {
       Object.each(pos, function (loc, val) {
+        //if (![ 'left', 'right', 'bottom', 'top', 'width', 'height', 'size', 'center' ].include(loc)) return;
         this.tiCtrl[loc] = val;
       }, this);
     }
