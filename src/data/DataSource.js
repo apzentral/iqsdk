@@ -84,8 +84,22 @@ Class('iQ.data.DataSource', {
     }
 
   , getId: function (id) { return this.idIndex[id]; }
+  , getIds: function (ids) { return ids.collect(this.getId).compact(); }
   , getAt: function (idx) { return this.data[idx]; }
   , getIndexById: function (id) { return this.data.pluck('id').indexOf(id); }
+  , getByField: function (field, val) {
+      return this.select(function (rec) {
+        return rec.getValue(field) == val;
+      });
+    }
+  , getPrev: function (rec) {
+      var idx = this.getIndexById(rec.id);
+      return idx == 0 ? null : this.getAt(idx - 1);
+    }
+  , getNext: function (rec) {
+      var idx = this.getIndexById(rec.id);
+      return (idx >= this.count() - 1) ? null : this.getAt(idx + 1);
+    }
   , count: function () { return this.data.length; }
   , isEmpty: function () { return this.data.length == 0; }
   , isContinuous: function () { return this.continuous; }
