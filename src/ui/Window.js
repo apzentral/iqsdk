@@ -8,6 +8,8 @@ Class('iQ.ui.Window', {
 , have: {
     tiClass: 'Window'
   , tiFactory: Ti.UI.createWindow
+  , followerMode: false
+  , withNavigation: false
   }
 
 , after: {
@@ -65,6 +67,8 @@ Class('iQ.ui.Window', {
   , close: function (opts) { 
       if (this.withNavigation)
         this.navWin.close(opts || { });
+      else if (this.followerMode)
+        this.navCtrl.close(this.tiCtrl);
       else
         this.tiCtrl.close(opts || {});
     }
@@ -74,9 +78,12 @@ Class('iQ.ui.Window', {
         return false;
       }
       win.removeLeftNavButton();
+      win.setFollowerMode(this.navCtrl);
       this.navCtrl.open(win.tiCtrl || win);
       return true;
     }
+
+  , setFollowerMode: function (nav) { this.followerMode = true; this.navCtrl = nav; }
 
   , getTitle: function () { return this.getProperty('title'); }
   , setTitle: function (title) { return this.setProperty('title', title); }
