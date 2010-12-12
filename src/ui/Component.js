@@ -236,6 +236,9 @@ Class('iQ.ui.Component', {
   , setBackgroundColor: function (color) { return this.setProperty('backgroundColor', color); }
   , getBackgroundImage: function () { return this.getProperty('backgroundImage'); }
   , setBackgroundImage: function (img) { return this.setProperty('backgroundImage', img); }
+  , setContentInsets: function (vals, opts) {
+      return this.tiCtrl.setContentInsets(vals, opts || { });
+    }
   , applyProperties: function (props) {
       Object.each(props, function (prop, val) {
         this.tiCtrl[prop] = val;
