@@ -55,8 +55,6 @@ Class('iQ.ui.View', {
 , methods: {
     getData: function () {
       if (!this.data && this.useDataSource) {
-        this.meta.extend({ does: iQ.role.EventEmitter });
-        this.eventListeners = { };
         this.setDataSource(this.dataSource);
       } else {
         this.data = this.data || [ ];
@@ -91,6 +89,7 @@ Class('iQ.ui.View', {
         this.data = new iQ.data.DataSource();
       if (this.data instanceof iQ.data.DataSource) {
         this.onDataAvailable();
+        this.data.on('dataLoaded', this.onDataLoaded, this);
         this.data.on('dataUpdated', this.onDataAvailable, this);
         this.data.on('filterUpdated', this.onDataAvailable, this);
         this.data.on('dataFailure', this.onDataFailure, this);
@@ -98,8 +97,13 @@ Class('iQ.ui.View', {
         this.onDataAvailable();
       }
     }
+  , onDataLoaded: function (data) {
+      this.debug("Data loaded for the view; updating...");
+      this.fireEvent('dataLoaded', { data: data });
+    }
   , onDataAvailable: function (data) {
       this.debug("New data available for the view; updating...");
+      this.fireEvent('dataAvailable', { data: data });
     }
   , onDataFailure: function (ev) {
       this.error("Failed to get the data");
