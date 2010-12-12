@@ -68,6 +68,8 @@ Class('iQ.data.RemoteSource', {
       this.debug("Saving data to cache " + this.cache);
       try {
         var f = Ti.Filesystem.getFile(this.cache);
+        if (f.exists())
+          f.createFile();
         f.write(JSON.stringify(json));
       } catch (ex) {
         this.error("Error saving data to cache: ");
