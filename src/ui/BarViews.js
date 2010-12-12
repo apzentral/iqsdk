@@ -7,9 +7,32 @@ Class('iQ.ui.ButtonBar', {
   , tiFactory: Ti.UI.createButtonBar
   }
 
+, before: {
+    construct: function () {
+      this.origConfig.dynamic = this.origConfig.dynamic || { };
+      this.origConfig.dynamic.labels = {
+        generator: this.renderLabels,
+        scope: this
+      };
+    }
+  }
+
 , after: {
     initStrings: function () {
-      this.__i18nStrings.push('labels');
+      //this.__i18nStrings.push('labels');
+    }
+  }
+  
+, methods: {
+    renderLabels: function () {
+      var labels = this.origConfig.buttons || [ ];
+      return labels.collect(function (label) {
+        if (isString(label))
+          return iQ.i18n(label);
+        label.image = iQ.theme(label.image);
+        label.title = iQ.i18n(label.title);
+        return label;
+      });
     }
   }
 });
