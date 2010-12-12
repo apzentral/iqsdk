@@ -43,17 +43,50 @@ Class('iQ.ui.Window', {
   }
 
 , methods: {
-    open: function () {
-      this.tiCtrl.open(); 
+    open: function (opts) { 
+      this.withNavigation = false;
+      this.tiCtrl.open(opts || { });
     }
-  , close: function () {
-      this.tiCtrl.close();
+  , openWithNavigation: function (opts) {
+      this.withNavigation = true;
+      if (!this.navWin) {
+        this.navWin = Ti.UI.createWindow({
+          left: this.origConfig.config.left, right: this.origConfig.config.right,
+          top: this.origConfig.config.top, bottom: this.origConfig.config.bottom,
+          width: this.origConfig.config.width, height: this.origConfig.config.height
+        });
+        this.navCtrl = Ti.UI.iPhone.createNavigationGroup({
+          window: this.tiCtrl
+        });
+        this.navWin.add(this.navCtrl);
+      }
+      this.navWin.open(opts || { });
     }
-  , getName: function () {
-      return this.origConfig.name;
+  , close: function (opts) { 
+      if (this.withNavigation)
+        this.navWin.close(opts || { });
+      else
+        this.tiCtrl.close(opts || {});
     }
-  , setTitle: function (title) {
-      return this.setProperty('title', iQ.i18n(title));
+  , openFollower: function (win) {
+      if (!this.withNavigation) {
+        this.error("You can open follower windows only if you use openWithNavigation for the main window");
+        return false;
+      }
+      win.removeLeftNavButton();
+      this.navCtrl.open(win.tiCtrl || win);
+      return true;
     }
+
+  , getTitle: function () { return this.getProperty('title'); }
+  , setTitle: function (title) { return this.setProperty('title', title); }
+  
+  , getRightNavButton: function () { return this.getProperty('rightNavButton'); }
+  , setRightNavButton: function (btn) { return this.setProperty('rightNavButton', btn.tiCtrl || btn); }
+  , removeRightNavButton: function () { this.tiCtrl.rightNavButton = undefined; }
+
+  , getLeftNavButton: function () { return this.getProperty('leftNavButton'); }
+  , setLeftNavButton: function (btn) { return this.setProperty('leftNavButton', btn.tiCtrl || btn); }
+  , removeLeftNavButton: function () { this.tiCtrl.leftNavButton = null; }
   }
 });
