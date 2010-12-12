@@ -80,7 +80,7 @@ Class('iQ.ui.Component', {
         if (isDefined(conf.config[param]))
           conf.config[param] = this.batchProcessAttribute(conf.config[param], iQ.theme);
       }, this);
-      return { origConfig: conf, origParams: params || { } };
+      return { origConfig: conf, origParams: params || { }, trait: conf.trait };
     }
   , initStrings: function () {
       this.__i18nStrings = [ ];
