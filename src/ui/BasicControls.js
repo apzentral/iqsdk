@@ -14,9 +14,11 @@ Class('iQ.ui.Label', {
   }
 
 , methods: {
-    setText: function (text) {
-      return this.setProperty('text', iQ.i18n(text));
-    }
+    getText: function () { return this.getProperty('text'); }
+  , setText: function (text) { return this.setProperty('text', text); }
+
+  , getColor: function () { return this.getProperty('color'); }
+  , setColor: function (color) { return this.setProperty('color', color); }
   }
 });
 

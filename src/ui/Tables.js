@@ -226,6 +226,18 @@ Class('iQ.ui.TableView.Section', {
       return true;
     }
   }
+  
+, methods: {
+    getHeaderTitle: function () { return this.getProperty('headerTitle'); },
+    getHeaderView: function () { return this.getProperty('headerView'); },
+    getFooterTitle: function () { return this.getProperty('footerTitle'); },
+    getFooterView: function () { return this.getProperty('footerView'); },
+
+    setHeaderTitle: function (title) { this.setProperty('headerTitle', title); },
+    setHeaderView: function (view) { this.setProperty('headerView', view); },
+    setFooterTitle: function (title) { this.setProperty('footerTitle', title); },
+    setFooterView: function (view) { this.setProperty('footerView', view); }
+  }
 });
 
 Class('iQ.ui.TableView.Row', {
