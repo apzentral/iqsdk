@@ -33,13 +33,26 @@ Class('iQ.data.RemoteSource', {
   , processHttpResponse: function (data) {
       return data;
     }
+  , processCache: function (data) {
+    
+    }
 
   , load: function () {
       this.fireEvent('dataLoading');
       this.loadCache();
       this.debug("Loading data from the server " + this.url);
+      this.doLoad();
+    }
+
+  , reload: function () {
+      this.fireEvent('dataReloading');
+      this.debug("Reloading data from the server " + this.url);
+      this.doLoad();
+    }
+    
+  , doLoad: function () {
       if (this.INNER)
-        this.INNER();
+        this.INNER.apply(this, arguments);
       else
         this.httpClient.get(this.url, this.prepareHttpRequest({
       		on: { success: this.onLoadSuccess, failure: this.onLoadFailure }
@@ -52,9 +65,13 @@ Class('iQ.data.RemoteSource', {
       this.debug("Loading data from cache " + this.cache);
       try {
         var f = Ti.Filesystem.getFile(this.cache);
-        var data = f.read();
+        if (!f.exists()) {
+          this.debug("No cache is available");
+          return;
+        }
+        var data = JSON.parse(f.read());
         this.data = [ ];
-        JSON.parse(data).each(this.addData.trail(true), this);
+        this.processCache(data).each(this.addData.trail(true), this);
         this.fireEvent('dataLoaded');
         this.fireEvent('dataUpdated');
       } catch (ex) {
@@ -63,12 +80,17 @@ Class('iQ.data.RemoteSource', {
       }
     }
 
-  , saveCache: function (json) {
+  , saveCache: function () {
       if (!this.cache) return;
       this.debug("Saving data to cache " + this.cache);
       try {
+        var json = this.data.pluck('data');
+        var dir = this.cache.split('/').slice(0,-1).join('/');
+        var d = Ti.Filesystem.getFile(dir);
+        if (!d.exists())
+          d.createDirectory();
         var f = Ti.Filesystem.getFile(this.cache);
-        if (f.exists())
+        if (!f.exists())
           f.createFile();
         f.write(JSON.stringify(json));
       } catch (ex) {
@@ -76,19 +98,18 @@ Class('iQ.data.RemoteSource', {
         this.logException(ex);
       }
     }
-
-  , reload: function () {
-      this.load();
-    }
   
   , onLoadSuccess: function (data) {
       this.debug("Data were successfully retrieved");
-      var recs = this.processHttpResponse(data);
-      this.saveCache(recs);
       this.fireEvent('dataLoaded');
       this.debug("Adding loaded records to the store");
-      if (recs.select(this.addData.trail(true), this).length > 0)
-        this.fireEvent('dataUpdated');
+      var recs = this.processHttpResponse(data);
+      var cnt = this.count();
+      recs = this.addData(recs, null, true);
+      if (recs.length > 0) {
+        this.saveCache();
+        this.fireEvent('dataUpdated', cnt > 0 ? { appended: recs } : { });
+      }
     }
 
   , onLoadFailure: function (type, code, message) {
