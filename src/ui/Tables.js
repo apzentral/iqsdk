@@ -30,10 +30,14 @@ Class('iQ.ui.TableView', {
       this.renderRows();
       return true;
     }
-  , onDataAvailable: function () {
+  , onDataAvailable: function (ev) {
       this.debug("New data for the table are available");
-      this.empty(false);
-      this.renderRows();
+      if (isDefined(ev) && isArray(ev.appended)) {
+        this.renderAppendRows(ev.appended);
+      } else {
+        this.empty(false);
+        this.renderRows();
+      }
     }
   }
 
@@ -49,6 +53,8 @@ Class('iQ.ui.TableView', {
       this.debug("Emptying the table");
       this.rows = { };
       this.tiCtrl && this.tiCtrl.setData([ ]);
+      this.reloaderCtrl = null;
+      this.pagerCtrl = null;
       if (emptyData !== false)
         this.data = null;
     }
@@ -65,10 +71,14 @@ Class('iQ.ui.TableView', {
       if (this.paging.use)
         data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);
       if (this.reloading.use && len > 0)
-        this.renderRow({ id: '__RELOADER__', className: this.reloading.rowClass });
+        this.reloaderCtrl = this.renderRow({ name: '__RELOADER__', className: this.reloading.rowClass });
       data.each(this.renderRow, this);
       if (this.paging.use && len > 0 && (this.data.isContinuous() || len > this.paging.pageSize * this.paging.pagesOpened))
-        this.renderRow({ id: '__PAGER__', className: this.paging.rowClass });
+        this.pagerCtrl = this.renderRow({ name: '__PAGER__', className: this.paging.rowClass });
+    }
+  , renderAppendRows: function (data) {
+      this.debug("Rendering appended rows...");
+      data.each(this.renderRow, this);
     }
   , renderRow: function (item, idx, suppressAppend) {
       var className = ((item instanceof iQ.data.Record) ? item.getValue('className') : item.className) || 'default';
@@ -78,12 +88,23 @@ Class('iQ.ui.TableView', {
       var row = new iQ.ui.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
       this.rows[item.name || item.id] = row;
-      if (suppressAppend !== true)
-        this.appendRow(row);
+      if (suppressAppend !== true) {
+        if (this.paging.use && this.pagerCtrl) {
+          this.insertRowBefore(this.tiCtrl.getIndexByName('__PAGER__'), row);
+        }
+        else
+          this.appendRow(row);
+      }
+      return row;
     }
-
-  , appendRow: function (row) {
-      return this.tiCtrl.appendRow(row.tiCtrl || row);
+  , appendRow: function (row, anim) {
+      return this.tiCtrl.appendRow(row.tiCtrl || row, anim || { });
+    }
+  , insertRowBefore: function (idx, row, anim) {
+      return this.tiCtrl.insertRowBefore(idx, row.tiCtrl || row, anim || { });
+    }
+  , insertRowAfter: function (idx, row, anim) {
+      return this.tiCtrl.insertRowAfter(idx, row.tiCtrl || row, anim || { });
     }
   }
 });
@@ -279,10 +300,12 @@ Class('iQ.ui.TableView.Row', {
       var o = this.SUPER(data, config, rowClass);
       apply(o.origConfig.config, {
         rowClass: rowClass
+      , name: data.name
       , iQData: data.data || data
       });
       return apply(o, {
         data: data
+      , rowIndex: data.rowIndex
       , rowClass: rowClass
       , layout: config.layout
       , mapping: config.mapping || { }
