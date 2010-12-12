@@ -5,7 +5,11 @@ Class('iQ.data.DataSource', {
   , idIndex: { required: false }
   , idField: { is: 'ro', required: false, init: 'id' }
   , filter: { is: 'ro', required: false }
-  , recordType: { required: false }
+  //, recordType: { required: false }
+  }
+
+, have: {
+    continuous: false
   }
 
 , does: [
@@ -34,7 +38,7 @@ Class('iQ.data.DataSource', {
 
   , addData: function (src, idx, suppressEvent) {
       if (!src) return null;
-      if (isArray(src)) 
+      if (isArray(src))
         return src.each(this.addData.trail(suppressEvent), this);
       var id = src[this.idField];
       if (!id) id = iQ.data.Record.generateId();
@@ -53,7 +57,7 @@ Class('iQ.data.DataSource', {
         this.warn("Data record with id %s is already presented in the store".format(id));
         result = false;
       } else {
-        rec.data._dataSourceName = this.name;
+        rec._dataSourceName = this.name;
         this.idIndex[id] = rec;
         this.data.push(rec);
       }
@@ -70,7 +74,7 @@ Class('iQ.data.DataSource', {
         this.warn("Data record with id %s is not presented in the store".format(rec ? '<null>' : rec.id));
         return false;
       }
-      rec.data._dataSourceName = null;
+      rec._dataSourceName = null;
       this.data.remove(rec);
       delete this.data.idIndex[rec.id];
       this.INNER && this.INNER(rec, suppressEvent);
@@ -79,21 +83,12 @@ Class('iQ.data.DataSource', {
       return true;
     }
 
-  , getId: function (id) {
-      return this.idIndex[id];
-    }
-    
-  , getAt: function (idx) {
-      return this.data[idx];
-    }
-    
-  , getIndexById: function (id) {
-      return this.data.pluck('id').indexOf(id);
-    }
-    
-  , count: function () {
-      return this.data.length;
-    }
+  , getId: function (id) { return this.idIndex[id]; }
+  , getAt: function (idx) { return this.data[idx]; }
+  , getIndexById: function (id) { return this.data.pluck('id').indexOf(id); }
+  , count: function () { return this.data.length; }
+  , isEmpty: function () { return this.data.length == 0; }
+  , isContinuous: function () { return this.continuous; }
     
   , applyFilter: function (filter) {
       if (!this.filter)

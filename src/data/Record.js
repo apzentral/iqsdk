@@ -10,6 +10,8 @@ Class('iQ.data.Record', {
 , methods: {
     initialize: function () {
       this.id = this.data[this.idField];
+      if (!this.id)
+        this.id = this.data[this.idField] = this.my.generateId();
     }
     
   , getId: function () {

@@ -25,7 +25,7 @@ Class('iQ.data.StoredSource', {
     load: function () {
       this.info("Loading store information from the disk...");
       try {
-        this.addData(JSON.parse(Ti.Filesystem.getFile('res/data', this.storePath).read()));
+        this.addData(JSON.parse(Ti.Filesystem.getFile('res/data', this.storePath).read()), null, true);
       } catch (ex) {
         this.error("Unable to load the store from the disk:");
         this.logException(ex);
