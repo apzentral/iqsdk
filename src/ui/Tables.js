@@ -15,11 +15,12 @@ Class('iQ.ui.TableView', {
 
 , before: {
     initialize: function () {
+      this.reloading = this.origConfig.reloading || { };
       this.paging = this.origConfig.paging || { };
       this.paging.pagesOpened = 1;
     }
   , construct: function () {
-      this.rows = [ ];
+      this.rows = { };
     }
   }
 
@@ -56,17 +57,18 @@ Class('iQ.ui.TableView', {
       this.renderRows();
     }
   , renderRows: function (page) {
-      this.info("Rendering rows...");
+      this.debug("Rendering rows...");
       var data = this.getData();
       if (data instanceof iQ.data.DataSource)
         data = data.getRecords();
       var len = data.length;
       if (this.paging.use)
         data = data.slice(0, this.paging.pageSize * this.paging.pagesOpened);
+      if (this.reloading.use && len > 0)
+        this.renderRow({ id: '__RELOADER__', className: this.reloading.rowClass });
       data.each(this.renderRow, this);
-      //this.tiCtrl.setData(this.rows);
-      //if (this.paging.use && len > this.paging.pageSize * this.paging.pagesOpened)
-      //  this.renderRow({ className: 'pager' });
+      if (this.paging.use && len > 0 && (this.data.isContinuous() || len > this.paging.pageSize * this.paging.pagesOpened))
+        this.renderRow({ id: '__PAGER__', className: this.paging.rowClass });
     }
   , renderRow: function (item, idx, suppressAppend) {
       var className = ((item instanceof iQ.data.Record) ? item.getValue('className') : item.className) || 'default';
