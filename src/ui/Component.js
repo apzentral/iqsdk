@@ -149,16 +149,23 @@ Class('iQ.ui.Component', {
           return;
         }
         var fn = li.handler || li;
-        var scope = li.scope || this;
+        var scope = li.scope;
         var called = false;
         function _lateBinder () {
           this.debug("Executing late event binding...");
           try {
             //if (called) return;
-            if (!isFunction(fn))
-              fn = this.uiPath(fn);
             if (isString(scope))
               scope = this.uiPath(scope);
+            if (!isFunction(fn)) {
+              var path = fn;
+              var spath = path.replace(/\.[^.]+$/,'');
+              if (isUndefined(scope) && path != spath)
+                scope = this.uiPath(spath);
+              else
+                scope = scope || this;
+              fn = this.uiPath(fn);
+            }
             if (!isFunction(fn)) {
               this.error("Bad listener " + fn + " for " + event + " event");
               continue;
