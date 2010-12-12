@@ -39,7 +39,7 @@ Class('iQ.data.DataSource', {
   , addData: function (src, idx, suppressEvent) {
       if (!src) return null;
       if (isArray(src))
-        return src.each(this.addData.trail(suppressEvent), this);
+        return src.collect(this.addData.trail(suppressEvent), this).compact();
       var id = src[this.idField];
       if (!id) id = iQ.data.Record.generateId();
       src[this.idField] = id;
@@ -52,10 +52,10 @@ Class('iQ.data.DataSource', {
     
   , addRecord: function (rec, suppressEvent) {
       var id = rec.getId();
-      var result = true;
+      var result = rec;
       if (isDefined(this.idIndex[id])) {
         this.warn("Data record with id %s is already presented in the store".format(id));
-        result = false;
+        result = null;
       } else {
         rec._dataSourceName = this.name;
         this.idIndex[id] = rec;
