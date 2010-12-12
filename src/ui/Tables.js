@@ -46,8 +46,8 @@ Class('iQ.ui.TableView', {
 , methods: {
     empty: function (emptyData) {
       this.debug("Emptying the table");
-      this.rows = [ ];
-      this.tiCtrl.setData([ ]);
+      this.rows = { };
+      this.tiCtrl && this.tiCtrl.setData([ ]);
       if (emptyData !== false)
         this.data = null;
     }
@@ -75,7 +75,7 @@ Class('iQ.ui.TableView', {
       item.rowIndex = idx;
       var row = new iQ.ui.TableView.Row(item, apply({ parent: this }, rowConfig), className);
       row.parent = this;
-      this.rows[idx] = row;
+      this.rows[item.name || item.id] = row;
       if (suppressAppend !== true)
         this.appendRow(row);
     }
@@ -115,7 +115,7 @@ Class('iQ.ui.GroupedView', {
     }
   , appendRow: function (row) {
       this.debug("Appending row " + row + " to section " + row.data.section);
-      this.sections[row.data.section].appendRow(row);
+      this.sections[row.data.section].add(row);
     }
   , initConfig: function (config) {
       config.style = Ti.UI.iPhone.TableViewStyle.GROUPED;
