@@ -84,14 +84,21 @@ Class('iQ.data.RemoteSource', {
       var recs = this.processHttpResponse(data);
       this.saveCache(recs);
       this.fireEvent('dataLoaded');
+      this.debug("Adding loaded records to the store");
       if (recs.select(this.addData.trail(true), this).length > 0)
         this.fireEvent('dataUpdated');
     }
 
-  , onLoadFailure: function (info, type) {
-      this.error("Can't get remote data: error " + type);
+  , onLoadFailure: function (type, code, message) {
+      var ev = {
+        type: type,
+        code: code,
+        message: message
+      };
+      this.error("Can't get remote data:");
+      this.dumpObject(ev);
       this.fireEvent('dataLoaded');
-      this.dumpObject(info);
+      this.fireEvent('dataFailure', ev);
     }
   }
 });
