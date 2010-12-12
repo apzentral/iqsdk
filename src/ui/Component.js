@@ -207,8 +207,8 @@ Class('iQ.ui.Component', {
   /*
    * Wrappers for Titanium API functions
    */
-  , show: function (opts) { this.tiCtrl.show(opts); return this; }
-  , hide: function (opts) { this.tiCtrl.hide(opts); return this; }
+  , show: function (opts) { this.tiCtrl.show(opts || { }); return this; }
+  , hide: function (opts) { this.tiCtrl.hide(opts || { }); return this; }
   , isVisible: function () { return this.tiCtrl.visible; }
   , animate: function (anim, cb) { 
       if (anim && anim.view)
