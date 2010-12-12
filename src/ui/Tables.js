@@ -94,6 +94,10 @@ Class('iQ.ui.GroupedView', {
 , has: {
     sections: { is: 'ro', required: false, init: null }
   }
+  
+, have: {
+    useDataSource: false
+  }
 
 , before: {
     construct: function () {
@@ -107,7 +111,15 @@ Class('iQ.ui.GroupedView', {
   }
 
 , override: {
-    refresh: function () {
+    getData: function () {
+      return {
+        sections: this.origConfig.sections,
+        rows: this.origConfig.rows
+      };
+    }
+  , empty: function () {
+    }
+  , refresh: function () {
       this.data = null;
       this.tiCtrl.setData(this.renderSections().pluck('tiCtrl'));
     }
