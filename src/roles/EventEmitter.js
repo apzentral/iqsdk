@@ -31,6 +31,8 @@ Role('iQ.role.EventEmitter', {
         this.warn("Event listener for %s with the same handler and scope is already defined; overriding".format(event));
       }
       this.eventListeners[event][scope][cb] = { handler: cb, scope: scope, opts: opts };
+      if (isFunction(this._onHandler))
+        this._onHandler(event, cb, scope, opts);
     }
 
   , un: function (event, cb, scope) {
@@ -46,6 +48,8 @@ Role('iQ.role.EventEmitter', {
         return;
       }
       this.debug("Removing event listeners for %s event from %s (%s)".format(event, scope.meta.name, scope.uiName ? scope.uiName() : '<noname>'));
+      if (isFunction(this._unHandler))
+        this._unHandler(event, cb, scope);
       delete this.eventListeners[event][scope][cb];
     }
     

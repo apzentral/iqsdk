@@ -1,19 +1,20 @@
 Class('iQ.ui.Component', {
   has: {
-    parent: { is: 'rw', required: false, init: null }
-  , controls: { is: 'ro', required: false, init: null }
-  , origConfig: { is: 'ro', required: false, init: { } }
-  , origParams: { is: 'ro', required: false, init: { } }
-  , eventListeners: { is: 'ro', required: false, init: { } }
-  , tiCtrl: { is: 'ro', required: false, init: null }
-  , tiFactory: { is: 'ro', required: false, init: null }
+    parent: { is: 'rw', required: false }
+  , controls: { is: 'ro', required: false }
+  , origConfig: { is: 'ro', required: false }
+  , origParams: { is: 'ro', required: false }
+  , ctrlListeners: { is: 'ro', required: false }
+  , tiCtrl: { is: 'ro', required: false }
+  , tiFactory: { is: 'ro', required: false }
   , tiClass: { is: 'ro', required: false }
-  , i18nStrings: { is: 'ro', required: false, init: null, isPrivate: true }
-  , themeStrings: { is: 'ro', required: false, init: null, isPrivate: true }
+  , i18nStrings: { is: 'ro', required: false, isPrivate: true }
+  , themeStrings: { is: 'ro', required: false, isPrivate: true }
   }
 
 , does: [
-    iQ.role.Logging
+    iQ.role.Logging,
+    iQ.role.EventEmitter
   ]
   
 , after: {
@@ -22,6 +23,8 @@ Class('iQ.ui.Component', {
    * Control initialization batch
    */
     initialize: function () {
+      this.ctrlListeners = { };
+      
       // Init phase 1: build control and its parts
       try {
         if (!this.construct()) {
@@ -152,7 +155,7 @@ Class('iQ.ui.Component', {
         var scope = li.scope;
         var called = false;
         function _lateBinder () {
-          this.debug("Executing late event binding...");
+          //this.debug("Executing late event binding...");
           try {
             //if (called) return;
             if (isString(scope))
@@ -248,20 +251,20 @@ Class('iQ.ui.Component', {
   /*
    * Event listeners
    */
-  , on: function (eventName, cb, scope) {
+  , _onHandler: function (eventName, cb, scope) {
       try {
         var fn = cb;
-        this.eventListeners[eventName] = this.eventListeners[eventName] || { };
-        this.tiCtrl.addEventListener(eventName, this.eventListeners[eventName][cb] = fn.bind(scope || this));
+        this.ctrlListeners[eventName] = this.ctrlListeners[eventName] || { };
+        this.tiCtrl.addEventListener(eventName, this.ctrlListeners[eventName][cb] = fn.bind(scope || this));
       } catch (ex) {
         this.error("Error attaching listener for event " + eventName + ":");
         this.logException(ex);
       }
   	  return this;
     }
-  , un: function (eventName, cb) {
+  , _unHandler: function (eventName, cb) {
       try {
-        var fn = this.eventListeners[eventName] && this.eventListeners[eventName][cb];
+        var fn = this.ctrlListeners[eventName] && this.ctrlListeners[eventName][cb];
         this.tiCtrl.removeEventListener(eventName, fn || cb);
       } catch (ex) {
         this.error("Error removing listener for event " + eventName + ":");
