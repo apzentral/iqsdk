@@ -299,7 +299,7 @@ Class('iQ.ui.TableView.Row', {
     BUILD: function (data, config, rowClass) {
       var o = this.SUPER(data, config, rowClass);
       apply(o.origConfig.config, {
-        rowClass: rowClass
+        className: rowClass
       , name: data.name
       , iQData: data.data || data
       });
