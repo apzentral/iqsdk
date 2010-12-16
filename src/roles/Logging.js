@@ -13,6 +13,7 @@ Role('iQ.role.Logging', {
       Ti.API.error(ex);
     }
   , dumpObject: function (obj, comment) {
+      if (!TheApp.debugMode) return;
       isString(comment) && this.info(comment);
       Ti.API.info(obj);
     }
@@ -27,6 +28,7 @@ Role('iQ.role.Logging', {
       Ti.API.info(this.formatLogMessage(msg));
     }
   , debug: function (msg) {
+      if (!TheApp.debugMode) return;
       Ti.API.debug(this.formatLogMessage(msg));
     }
     

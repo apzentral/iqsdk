@@ -64,10 +64,10 @@ apply(iQ, {
      */
     var constructor = layout.builder;
     if (!isFunction(constructor)) {
-      error("Component %s does not supply proper constructor".format(layout.name));
+      TheApp.error("Component %s does not supply proper constructor".format(layout.name));
       return null;
     }
-    debug("Calling constructor for %s (%s)".format(layout.name, constructor.meta.name));
+    TheApp.debug("Calling constructor for %s (%s)".format(layout.name, constructor.meta.name));
     return new constructor(layout, params);
   }
 
