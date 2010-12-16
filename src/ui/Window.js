@@ -25,7 +25,7 @@ Class('iQ.ui.Window', {
         if (item == '<=>')
           return Ti.UI.createButton({ systemButton: Ti.UI.iPhone.SystemButton.FLEXIBLE_SPACE });
         try {
-          var ctrl = iQ.buildComponen(apply({ parent: this }, item));
+          var ctrl = iQ.buildComponent(apply({ parent: this }, item));
           this.toolbar[item.name || idx] = ctrl;
           return ctrl.tiCtrl;
         } catch (ex) {
