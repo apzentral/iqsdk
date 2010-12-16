@@ -61,8 +61,22 @@ Class('iQ.ui.View', {
       }
       return this.data;
     }
+  , bindDataSource: function () {
+      this.data.on('dataLoaded', this.onDataLoaded, this);
+      this.data.on('dataUpdated', this.onDataAvailable, this);
+      this.data.on('filterUpdated', this.onDataAvailable, this);
+      this.data.on('dataFailure', this.onDataFailure, this);
+    }
+  , unbindDataSource: function () {
+      this.data.un('dataLoaded', this.onDataLoaded, this);
+      this.data.un('dataUpdated', this.onDataAvailable, this);
+      this.data.un('filterUpdated', this.onDataAvailable, this);
+      this.data.un('dataFailure', this.onDataFailure, this);
+    }
   , setDataSource: function (dataSource) {
       this.debug("Setting new dataSource");
+      if (this.data instanceof iQ.data.DataSource)
+        this.unbindDataSource();
       this.dataSource = dataSource;
       if (isFunction(this.dataSource)) {
         var data = this.dataSource();
@@ -89,10 +103,7 @@ Class('iQ.ui.View', {
         this.data = new iQ.data.DataSource();
       if (this.data instanceof iQ.data.DataSource) {
         this.onDataAvailable();
-        this.data.on('dataLoaded', this.onDataLoaded, this);
-        this.data.on('dataUpdated', this.onDataAvailable, this);
-        this.data.on('filterUpdated', this.onDataAvailable, this);
-        this.data.on('dataFailure', this.onDataFailure, this);
+        this.bindDataSource();
       } else {
         this.onDataAvailable();
       }
