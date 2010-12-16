@@ -25,7 +25,7 @@ Class('iQ.data.StoredSource', {
     load: function () {
       this.info("Loading store information from the disk...");
       try {
-        this.addData(JSON.parse(Ti.Filesystem.getFile('res/data', this.storePath).read()), null, true);
+        this.addData(JSON.parse(Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, this.storePath).read()), null, true);
       } catch (ex) {
         this.error("Unable to load the store from the disk:");
         this.logException(ex);
@@ -35,7 +35,7 @@ Class('iQ.data.StoredSource', {
     save: function () {
       this.info("Saving store information to the disk...");
       try {
-        Ti.Filesystem.getFile('res/data', this.storePath).write(JSON.stringify(this.data.pluck('data')));
+        Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, this.storePath).write(JSON.stringify(this.data.pluck('data')));
       } catch (ex) {
         this.error("Unable to load the store to the disk:");
         this.logException(ex);
