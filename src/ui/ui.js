@@ -12,6 +12,7 @@ iQ.include('lib/iqcl/ui/BasicViews.js');
 iQ.include('lib/iqcl/ui/BarViews.js');
 iQ.include('lib/iqcl/ui/Maps.js');
 iQ.include('lib/iqcl/ui/Tables.js');
+iQ.include('lib/iqcl/ui/Picker.js');
 
 iQ.include('lib/iqcl/ui/Window.js');
 iQ.include('lib/iqcl/ui/Tabs.js');
