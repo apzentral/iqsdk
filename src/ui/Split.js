@@ -47,7 +47,7 @@ Class('iQ.ui.Split', {
 
 , methods: {
     openWindow: function (win, loc) {
-      this[loc == 'detail' ? 'detailView' : 'masterView'].open(win);
+      this[loc == 'master' ? 'masterView' : 'detailView'].open(win);
     }
     
   , onOrientationChange: function (ev) {

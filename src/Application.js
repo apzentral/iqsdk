@@ -171,7 +171,7 @@ Class('iQ.Application', {
       dlg.open();
     }
 
-  , openWindow: function (win) {
+  , openWindow: function (win, loc) {
       if (isString(win))
         win = this.windows[win] || Layouts[win];
       if (isObject(win) && !(win instanceof iQ.ui.Component))
@@ -185,8 +185,10 @@ Class('iQ.Application', {
 
       if (this.layout.builder == iQ.ui.Navigation) {
         this.view.open(win)
-      } else if (this.layout.builder = iQ.ui.TabGroup) {
+      } else if (this.layout.builder == iQ.ui.TabGroup) {
         this.view.getActiveTab().open(win.tiCtrl);
+      } else if (this.layout.builder == iQ.ui.Split) {
+        this.view.openWindow(win, loc);
       } else {
         win.open();
       }

@@ -76,16 +76,18 @@ Class('iQ.ui.Window', {
       if (!this.navWin)
         this.createNavigation();
       if (!this.popoverCtrl) {
+        opts = opts || { };
         this.withPopover = true;
         this.popoverCtrl = Ti.UI.iPad.createPopover({
           left: this.origConfig.config.left, right: this.origConfig.config.right,
           top: this.origConfig.config.top, bottom: this.origConfig.config.bottom,
           width: this.origConfig.config.width, height: this.origConfig.config.height,
+          arrowDirection: opts.arrowDirection,
           navBarHidden: true
         });
         this.popoverCtrl.add(this.navWin);
       }
-      this.popoverCtrl.show(opts || { });
+      this.popoverCtrl.show(opts);
     }
   , close: function (opts) { 
       if (this.withPopover)
