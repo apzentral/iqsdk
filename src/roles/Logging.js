@@ -13,7 +13,7 @@ Role('iQ.role.Logging', {
       Ti.API.error(ex);
     }
   , dumpObject: function (obj, comment) {
-      if (!TheApp.debugMode) return;
+      //if (!TheApp.debugMode) return;
       isString(comment) && this.info(comment);
       Ti.API.info(obj);
     }

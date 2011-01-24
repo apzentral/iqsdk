@@ -13,13 +13,13 @@ Class('iQ.ui.WebView', {
   }
 
 , methods: {
-    canGoBack: function () { return this.tiCtrl.canGoBack.apply(this, arguments); }
-  , canGoForward: function () { return this.tiCtrl.canGoForward.apply(this, arguments); }
-  , goBack: function () { return this.tiCtrl.canGoForward.apply(this, arguments); }
-  , goForward: function () { return this.tiCtrl.goForward.apply(this, arguments); }
-  , reload: function () { return this.tiCtrl.reload.apply(this, arguments); }
-  , repaint: function () { return this.tiCtrl.repaint.apply(this, arguments); }
-  , stopLoading: function () { return this.tiCtrl.stopLoading.apply(this, arguments); }
+    canGoBack: function () { return this.tiCtrl.canGoBack(); }
+  , canGoForward: function () { return this.tiCtrl.canGoForward(); }
+  , goBack: function () { return this.tiCtrl.canGoForward(); }
+  , goForward: function () { return this.tiCtrl.goForward(); }
+  , reload: function () { return this.tiCtrl.reload(); }
+  , repaint: function () { return this.tiCtrl.repaint(); }
+  , stopLoading: function () { return this.tiCtrl.stopLoading(); }
   , setBasicAuthentication: function () { 
       return this.tiCtrl.setBasicAuthentication.apply(this, arguments); 
     }

@@ -92,7 +92,7 @@ Class('iQ.ui.iAd', {
 
 , have: {
     tiClass: 'AdView'
-  , tiFactory: Ti.UI.createAdView
+  , tiFactory: Ti.UI.iOS.createAdView
   }
 
 , methods: {

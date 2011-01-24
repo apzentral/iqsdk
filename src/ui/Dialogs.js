@@ -33,7 +33,7 @@ Class('iQ.ui.OptionDialog', {
     show: function (opts) {
       if (opts && opts.view)
         opts.view = opts.view.tiCtrl || opts.view;
-      this.tiCtrl.show(opts);
+      this.tiCtrl.show(opts || { });
     }
   , hide: function () { this.tiCtrl.hide(); }
   }
@@ -109,7 +109,7 @@ Class('iQ.ui.AlertDialog', {
     show: function (opts) {
       if (opts && opts.view)
         opts.view = opts.view.tiCtrl || opts.view;
-      this.tiCtrl.show(opts);
+      this.tiCtrl.show(opts || { });
     }
   , hide: function () { this.tiCtrl.hide(); }
   }
