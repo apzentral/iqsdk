@@ -10,6 +10,7 @@ Class('iQ.ui.View', {
     tiClass: 'View'
   , tiFactory: Ti.UI.createView
   , useDataSource: false
+  , defaultAxis: 'components'
   }
 
 , before: {
@@ -128,7 +129,7 @@ Class('iQ.ui.View', {
         if (!view) continue;
         var name = view.origConfig ? view.origConfig.name : Object.numericKeys(this.components).length;
         view.parent = this;
-        this.components[name] = view;
+        this[this.defaultAxis][name] = view;
         this.doAdd(view, i);
       }
       return this;
@@ -139,14 +140,14 @@ Class('iQ.ui.View', {
         var view = a[i];
         if (!view) continue;
         var name = view.origConfig.name;
-        var ctrl = this.components[name];
+        var ctrl = this[this.defaultAxis][name];
         if (!ctrl || ctrl != view)
-          ctrl = this.components[this.components.indexOf(ctrl)];
+          ctrl = this[this.defaultAxis][this[this.defaultAxis].indexOf(ctrl)];
         if (!ctrl) {
           this.error("Can't remove component %s: not found".format(view.name));
         } else {
           view.parent = null;
-          delete this.components[name];
+          delete this[this.defaultAxis][name];
         }
         this.doRemove(view, i);
       }

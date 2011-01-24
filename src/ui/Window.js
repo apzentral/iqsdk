@@ -10,6 +10,7 @@ Class('iQ.ui.Window', {
   , tiFactory: Ti.UI.createWindow
   , followerMode: false
   , withNavigation: false
+  , withPopover: true
   }
 
 , after: {
@@ -19,6 +20,19 @@ Class('iQ.ui.Window', {
     }
     
   , render: function () {
+      this.renderToolbar();
+    }
+  }
+
+, override: {
+    uiAxis: function (item) {
+      if (item.startsWith('=')) return this.toolbar;
+      else return this.SUPER(item);
+    }
+  }
+
+, methods: {
+    renderToolbar: function () {
       var tbconf = this.origConfig.toolbar;
       this.toolbar = { };
       tbconf && this.tiCtrl.setToolbar(tbconf.collect(function (item, idx) {
@@ -35,37 +49,48 @@ Class('iQ.ui.Window', {
         }
       }, this).compact());
     }
-  }
-
-, override: {
-    uiAxis: function (item) {
-      if (item.startsWith('=')) return this.toolbar;
-      else return this.SUPER(item);
-    }
-  }
-
-, methods: {
-    open: function (opts) { 
+  
+  , open: function (opts) {
+      this.withPopover = false;
       this.withNavigation = false;
       this.tiCtrl.open(opts || { });
     }
-  , openWithNavigation: function (opts) {
+  , createNavigation: function () {
       this.withNavigation = true;
-      if (!this.navWin) {
-        this.navWin = Ti.UI.createWindow({
-          left: this.origConfig.config.left, right: this.origConfig.config.right,
-          top: this.origConfig.config.top, bottom: this.origConfig.config.bottom,
-          width: this.origConfig.config.width, height: this.origConfig.config.height
-        });
-        this.navCtrl = Ti.UI.iPhone.createNavigationGroup({
-          window: this.tiCtrl
-        });
-        this.navWin.add(this.navCtrl);
-      }
+      this.navWin = Ti.UI.createWindow({
+        left: this.origConfig.config.left, right: this.origConfig.config.right,
+        top: this.origConfig.config.top, bottom: this.origConfig.config.bottom,
+        width: this.origConfig.config.width, height: this.origConfig.config.height
+      });
+      this.navCtrl = Ti.UI.iPhone.createNavigationGroup({
+        window: this.tiCtrl
+      });
+      this.navWin.add(this.navCtrl);
+    }
+  , openWithNavigation: function (opts) {
+      if (!this.navWin)
+        this.createNavigation();
       this.navWin.open(opts || { });
     }
+  , openWithPopover: function (opts) {
+      if (!this.navWin)
+        this.createNavigation();
+      if (!this.popoverCtrl) {
+        this.withPopover = true;
+        this.popoverCtrl = Ti.UI.iPad.createPopover({
+          left: this.origConfig.config.left, right: this.origConfig.config.right,
+          top: this.origConfig.config.top, bottom: this.origConfig.config.bottom,
+          width: this.origConfig.config.width, height: this.origConfig.config.height,
+          navBarHidden: true
+        });
+        this.popoverCtrl.add(this.navWin);
+      }
+      this.popoverCtrl.show(opts || { });
+    }
   , close: function (opts) { 
-      if (this.withNavigation)
+      if (this.withPopover)
+        this.popoverCtrl.hide();
+      else if (this.withNavigation)
         this.navWin.close(opts || { });
       else if (this.followerMode)
         this.navCtrl.close(this.tiCtrl);

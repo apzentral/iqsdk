@@ -87,6 +87,7 @@ apply(iQ, {
     config.augment = config.augment || { };
     config.augment.loadData = config.augment.loadData || function () { };
     apply(TheApp, new iQ.Application(config));
+    TheApp.debugMode = config.debugMode;
 
     iQ.include('res/i18n/' + TheApp.getLocale() + '.js');
     iQ.include('res/themes/' + TheApp.getTheme() + '.js');

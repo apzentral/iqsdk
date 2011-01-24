@@ -6,8 +6,9 @@ Class('iQ.ui.Navigation', {
   }
 
 , have: {
-    tiClass: 'SplitView'
+    tiClass: 'Navigation'
   , tiFactory: Ti.UI.iPhone.createNavigationGroup
+  , windows: null
   }
 
 , before: {
@@ -15,6 +16,8 @@ Class('iQ.ui.Navigation', {
       var viewCfg = apply({ }, this.origConfig.view);
       viewCfg.parent = this;
       this.window = iQ.buildComponent(viewCfg);
+      this.windows = { };
+      this.windows[viewCfg.name] = this.window;
       this.origConfig.config.window = this.window.tiCtrl;
       return true;
     }
@@ -22,7 +25,8 @@ Class('iQ.ui.Navigation', {
 
 , override: {
     uiAxis: function (item) {
-      if (item.startsWith('@')) return this.window.components;
+      if (item.startsWith('-')) return this.windows;
+      else if (item.startsWith('@')) return this.window.components;
       else if (item.startsWith('*')) return this.window.controls;
       else return this.SUPER(item);
     }

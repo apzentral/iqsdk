@@ -106,6 +106,13 @@ Class('iQ.ui.TableView', {
   , insertRowAfter: function (idx, row, anim) {
       return this.tiCtrl.insertRowAfter(idx, row.tiCtrl || row, anim || { });
     }
+    
+  , selectRow: function (idx) {
+      this.tiCtrl.selectRow(idx);
+    }
+  , deselectRow: function (idx) {
+      this.tiCtrl.deselectRow(idx);
+    }
   }
 });
 
