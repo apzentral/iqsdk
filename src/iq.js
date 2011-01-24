@@ -143,6 +143,7 @@ apply(iQ, {
 
 iQ.include('lib/iqcl/util.js');
 iQ.include('lib/iqcl/roles/roles.js');
+iQ.include('lib/iqcl/purchases.js');
 
 iQ.include('lib/iqcl/Application.js');
 iQ.include('lib/iqcl/ui/ui.js');
