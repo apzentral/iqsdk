@@ -1,18 +1,27 @@
-/* Type in brief name of the app */ = { };
+/* TODO: Type in brief name of the app */ = { };
 Ti.include('lib/iqcl/iq.js');
 
 iQ.initApp({
-  name: // Type in the name of the app
-, urls: {
+  name: // TODO: Type in the name of the app
+  debugMode: false,
+  
+  locales: {
+    'default': 'en',
+    defined: [ 'en' ]
+  },
+  themes: {
+    'default': 'default',
+    defined: [ 'default' ]
   }
-, locales: {
-    'default': 'en'
-  , defined: [ 'en' ]
-  }
+  // TODO: Add other app configuration parameters which can be lately accessed via TheApp.config.<parameter>
 
-, after: {
-  }
+  augments: {
+    loadData: function () {
+      // TODO: Do some custom data initialization on application load
+    }
+  },
 
-, methods: {
+  methods: {
+    // TODO: Define your global application methods here
   }
 });

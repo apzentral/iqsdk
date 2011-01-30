@@ -1,5 +1,3 @@
-iQ.include('views/components.js');
-
 Layouts.main = {
   name: 'main'
 , type: 'tabs'
