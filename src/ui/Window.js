@@ -91,7 +91,7 @@ Class('iQ.ui.Window', {
     }
   , close: function (opts) { 
       if (this.withPopover)
-        this.popoverCtrl.hide();
+        this.popoverCtrl && this.popoverCtrl.hide();
       else if (this.withNavigation)
         this.navWin.close(opts || { });
       else if (this.followerMode)
