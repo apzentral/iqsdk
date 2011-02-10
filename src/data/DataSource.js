@@ -20,10 +20,17 @@ Class('iQ.data.DataSource', {
 , methods: {
     initialize: function () {
       if (!this.name) this.name = Ti.Platform.createUUID();
-      this.data = [ ];
       this.idIndex = { };
       this.recordType = this.recordType || iQ.data.Record;
-      this.info("Registering data source %s".format(this.getName()));
+      if (isArray(this.data)) {
+        this.originalData = this.data;
+        this.data = [ ];
+        this.debug("Populating the store with original data (%s entries)".format(this.originalData.length));
+        this.addData(this.originalData, null, true);
+      } else {
+        this.data = [ ];
+      }
+      this.debug("Registering data source %s".format(this.getName()));
       iQ.data.DataSource.register(this);
     }
     
@@ -61,7 +68,11 @@ Class('iQ.data.DataSource', {
         this.idIndex[id] = rec;
         this.data.push(rec);
       }
-      this.INNER && this.INNER(rec, suppressEvent);
+      try {
+        this.INNER && this.INNER(rec, suppressEvent);
+      } catch (ex) {
+        this.dumpObject(ex);
+      }
       if (suppressEvent !== true)
         this.fireEvent('dataUpdated');
       return result;
@@ -77,7 +88,11 @@ Class('iQ.data.DataSource', {
       rec._dataSourceName = null;
       this.data.remove(rec);
       delete this.data.idIndex[rec.id];
-      this.INNER && this.INNER(rec, suppressEvent);
+      try {
+        this.INNER && this.INNER(rec, suppressEvent);
+      } catch (ex) {
+        this.dumpObject(ex);
+      }
       if (suppressEvent !== true)
         this.fireEvent('dataUpdated');
       return true;
