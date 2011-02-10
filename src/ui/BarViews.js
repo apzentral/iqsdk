@@ -31,6 +31,8 @@ Class('iQ.ui.ButtonBar', {
           return iQ.i18n(label);
         label.image = iQ.theme(label.image);
         label.title = iQ.i18n(label.title);
+        label.width = label.width;
+        label.enabled = label.enabled;
         return label;
       });
     }
