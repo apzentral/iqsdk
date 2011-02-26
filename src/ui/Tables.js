@@ -10,6 +10,7 @@ Class('iQ.ui.TableView', {
 , have: {
     tiClass: 'TableView'
   , tiFactory: Ti.UI.createTableView
+  , selectedRow: null
   , useDataSource: true
   }
 
@@ -90,7 +91,7 @@ Class('iQ.ui.TableView', {
       this.rows[item.name || item.id] = row;
       if (suppressAppend !== true) {
         if (this.paging.use && this.pagerCtrl) {
-          this.insertRowBefore(this.tiCtrl.getIndexByName('__PAGER__'), row);
+          this.insertRowAfter(this.tiCtrl.getIndexByName('__PAGER__') - 1, row);
         }
         else
           this.appendRow(row);
@@ -108,10 +109,16 @@ Class('iQ.ui.TableView', {
     }
     
   , selectRow: function (idx) {
+      this.selectedRow = idx;
       this.tiCtrl.selectRow(idx);
     }
   , deselectRow: function (idx) {
       this.tiCtrl.deselectRow(idx);
+      this.selectedRow = null;
+    }
+  , clearSelection: function () {
+      if (this.selectedRow !== null)
+        this.deselectRow(this.selectedRow);
     }
   }
 });
