@@ -9,6 +9,7 @@ Class('iQ.ui.Split', {
 , have: {
     tiClass: 'SplitView'
   , tiFactory: Ti.UI.iPad.createSplitWindow
+  , splitPopover:  null
   }
 
 , before: {
@@ -49,13 +50,28 @@ Class('iQ.ui.Split', {
     openWindow: function (win, loc) {
       this[loc == 'master' ? 'masterView' : 'detailView'].open(win);
     }
+  , closeWindow: function (win, loc) {
+      this[loc == 'master' ? 'masterView' : 'detailView'].close(win);
+    }
+    
+  , hidePopover: function () {
+      if (this.splitPopover) {
+        this.info("Hiding popover");
+        this.splitPopover.hidePopover();
+      } else {
+        this.error("No popover object allocated for SplitView");
+      }
+    }
     
   , onOrientationChange: function (ev) {
+      this.dumpObject(ev);
       if (ev.view == 'detail') {
         ev.button.title = iQ.i18n(this.origConfig.popoverButton.title);
         this.detailView.window.tiCtrl.leftNavButton = ev.button;
       } else if (ev.view == 'master') {
         this.detailView.window.tiCtrl.leftNavButton = null;
+      } else if (ev.view == 'popover') {
+        this.splitPopover = ev.popover;
       }
     }
   }

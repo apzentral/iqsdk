@@ -141,5 +141,8 @@ Class('iQ.ui.Tab', {
     open: function (win) {
       return this.tiCtrl.open(win.tiCtrl || win);
     }
+  , close: function (win) {
+      return this.tiCtrl.close(win.tiCtrl || win);
+    }
   }
 });

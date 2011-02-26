@@ -36,5 +36,8 @@ Class('iQ.ui.Navigation', {
     open: function (win) {
       return this.tiCtrl.open(win ? (win.tiCtrl || win) : (this.window.tiCtrl || this.window));
     }
+  , close: function (win) {
+      return this.tiCtrl.close(win ? (win.tiCtrl || win) : (this.window.tiCtrl || this.window));
+    }
   }
 });

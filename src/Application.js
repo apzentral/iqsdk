@@ -193,6 +193,22 @@ Class('iQ.Application', {
         win.open();
       }
     }
+  , closeWindow: function (win, loc) {
+      if (!win) {
+        this.error("Wrong window object specified for Application#closeWindow method:");
+        this.dumpObject(win);
+      }
+    
+      if (this.layout.builder == iQ.ui.Navigation) {
+        this.view.close(win)
+      } else if (this.layout.builder == iQ.ui.TabGroup) {
+        this.view.getActiveTab().close(win.tiCtrl);
+      } else if (this.layout.builder == iQ.ui.Split) {
+        this.view.closeWindow(win, loc);
+      } else {
+        win.close();
+      }
+    }
 
   , getLocale: function () {
       var phoneLocale = Ti.Platform.locale;
